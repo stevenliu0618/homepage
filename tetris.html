@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>俄罗斯方块 - Steven Liu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg-primary:#0a0a0f;--bg-secondary:#12121a;--bg-card:#1a1a25;--border-color:#2a2a3a;--text-primary:#f0f0f5;--text-secondary:#a0a0b0;--accent:#6366f1;--accent-hover:#818cf8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--nav-bg:rgba(10,10,15,.8)}
+    [data-theme="light"]{--bg-primary:#fafafa;--bg-secondary:#f0f0f5;--bg-card:#fff;--border-color:#e5e5ea;--text-primary:#1a1a2e;--text-secondary:#6b6b7b;--accent:#6366f1;--accent-hover:#4f46e5;--nav-bg:rgba(250,250,250,.9)}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;transition:background .3s,color .3s}
+    nav{position:fixed;top:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-color);z-index:1000;padding:0 24px}
+    .nav-container{max-width:1200px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--text-primary);text-decoration:none;display:flex;align-items:center;gap:8px}
+    .nav-logo::before{content:'</>';color:var(--accent);font-size:14px}
+    .nav-right{display:flex;align-items:center;gap:12px}
+    .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all .2s}
+    .nav-links a:hover{color:var(--text-primary);background:var(--bg-card)}
+    .theme-toggle,.sound-toggle{width:44px;height:44px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--text-secondary)}
+    .theme-toggle:hover,.sound-toggle:hover{border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg,.sound-toggle svg{width:20px;height:20px}
+    .theme-toggle .sun-icon{display:none}
+    [data-theme="light"] .theme-toggle .sun-icon{display:block}
+    [data-theme="light"] .theme-toggle .moon-icon{display:none}
+    .sound-toggle.muted{color:var(--danger);border-color:var(--danger)}
+    .game-section{padding:120px 24px 60px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .game-container{max-width:1000px;width:100%;display:flex;gap:40px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+    .game-board-wrapper{display:flex;flex-direction:column;align-items:center}
+    .game-title{font-size:2rem;font-weight:700;margin-bottom:24px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-hover) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .game-canvas-wrapper{position:relative;background:var(--bg-card);border:2px solid var(--border-color);border-radius:16px;padding:20px;transition:border-color .3s}
+    .game-canvas-wrapper:hover{border-color:var(--accent)}
+    #gameCanvas{display:block;border-radius:8px;background:#12121a}
+    .game-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,15,.95);padding:40px 60px;border-radius:16px;text-align:center;display:none;border:2px solid var(--accent);backdrop-filter:blur(10px)}
+    [data-theme="light"] .game-overlay{background:rgba(255,255,255,.95)}
+    .game-overlay h2{font-size:2rem;margin-bottom:16px;color:var(--accent)}
+    .game-overlay p{color:var(--text-secondary);margin-bottom:24px}
+    .side-panel{display:flex;flex-direction:column;gap:20px;min-width:220px}
+    .panel-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:24px;transition:background .3s,border-color .3s}
+    .panel-card h3{font-size:.875rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;font-family:'JetBrains Mono',monospace}
+    .score-value{font-size:2.5rem;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace}
+    .stat-row{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color)}
+    .stat-item{text-align:center}
+    .stat-item span:first-child{display:block;font-size:.75rem;color:var(--text-secondary);margin-bottom:4px}
+    .stat-item span:last-child{font-size:1.25rem;font-weight:600;color:var(--text-primary);font-family:'JetBrains Mono',monospace}
+    #nextCanvas{width:100px;height:100px;margin:0 auto;background:#12121a;border-radius:8px;display:block}
+    .control-item{display:flex;align-items:center;gap:12px;margin:10px 0;font-size:.875rem;color:var(--text-secondary)}
+    .key{background:var(--bg-secondary);border:1px solid var(--border-color);padding:6px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent);min-width:50px;text-align:center;font-size:.75rem}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:12px;font-size:.9375rem;font-weight:500;transition:all .2s;cursor:pointer;border:none;width:100%;margin-top:8px}
+    .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-hover);transform:translateY(-2px)}
+    .btn-secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color)}.btn-secondary:hover{border-color:var(--accent)}
+    .btn-row{display:flex;gap:12px}.btn-row .btn{flex:1}
+    .mobile-controls{display:none;margin-top:24px;flex-direction:column;align-items:center;gap:16px}
+    .mobile-row{display:flex;gap:16px;align-items:center}
+    .mobile-btn{width:64px;height:64px;border-radius:16px;border:2px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);font-size:1.5rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+    .mobile-btn:active{background:var(--accent);border-color:var(--accent);transform:scale(.95)}
+    .mobile-btn.large{width:80px;height:80px;font-size:2rem;background:var(--accent);border-color:var(--accent)}
+    .mobile-btn.rotate{background:var(--warning);border-color:var(--warning)}
+    .mobile-btn.drop{background:var(--danger);border-color:var(--danger)}
+    .combo-display{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.5rem;font-weight:700;color:var(--warning);opacity:0;pointer-events:none;white-space:nowrap}
+    .combo-display.show{animation:comboAnim 1s ease-out}
+    @keyframes comboAnim{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}20%{transform:translate(-50%,-50%) scale(1.2);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+    .speed-indicator{position:absolute;top:30px;right:30px;background:var(--danger);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;opacity:0;transition:opacity .2s}
+    .speed-indicator.active{opacity:1;animation:pulse .5s ease infinite alternate}
+    @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+    .line-flash{position:absolute;height:30px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;left:20px;right:20px;border-radius:4px;pointer-events:none}
+    @media(max-width:768px){.game-container{flex-direction:column;align-items:center}.side-panel{width:100%;max-width:400px}.mobile-controls{display:flex}.nav-links{display:none}}
+  </style>
+</head>
+<body>
+<nav><div class="nav-container"><a href="index.html" class="nav-logo">Steven Liu</a><div class="nav-right">
+<div class="nav-links"><a href="index.html">首页</a><a href="index.html#projects">项目</a></div>
+<button class="sound-toggle" id="soundToggle" title="音乐/音效开关">
+<svg id="soundIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+<svg id="soundIconOff" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+</button>
+<button class="theme-toggle" id="themeToggle" title="切换主题">
+<svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+<svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+</div></div></nav>
+<section class="game-section"><div class="game-container">
+<div class="game-board-wrapper"><h1 class="game-title">俄罗斯方块</h1>
+<div class="game-canvas-wrapper">
+<canvas id="gameCanvas" width="300" height="600"></canvas>
+<div class="game-overlay" id="gameOver"><h2>游戏结束</h2><p>最终得分: <span id="finalScore">0</span></p><button class="btn btn-primary" onclick="game.restart()">重新开始</button></div>
+<div class="game-overlay" id="pauseOverlay" style="border-color:#f59e0b"><h2 style="color:#f59e0b">⏸️ 暂停</h2></div>
+<div class="combo-display" id="comboDisplay"></div>
+<div class="speed-indicator" id="speedIndicator">⚡ 4倍速</div>
+</div>
+<div class="mobile-controls">
+<div class="mobile-row"><button class="mobile-btn rotate" data-key=" ">↻</button></div>
+<div class="mobile-row"><button class="mobile-btn" data-key="a">←</button><button class="mobile-btn" data-key="s">↓</button><button class="mobile-btn" data-key="d">→</button></div>
+<div class="mobile-row"><button class="mobile-btn large drop" data-key="w">⤓</button></div>
+<button class="btn btn-secondary" onclick="game.togglePause()" style="width:auto;padding:12px 24px;margin-top:8px">暂停/继续</button>
+</div>
+</div>
+<div class="side-panel">
+<div class="panel-card"><h3>得分</h3><div class="score-value" id="score">0</div><div class="stat-row"><div class="stat-item"><span>等级</span><span id="level">1</span></div><div class="stat-item"><span>行数</span><span id="lines">0</span></div></div></div>
+<div class="panel-card" style="text-align:center"><h3>下一个</h3><canvas id="nextCanvas" width="100" height="100"></canvas></div>
+<div class="panel-card"><h3>操作说明</h3><div class="control-item"><span class="key">A</span><span>左移</span></div><div class="control-item"><span class="key">D</span><span>右移</span></div><div class="control-item"><span class="key">S</span><span>加速下落</span></div><div class="control-item"><span class="key">双击S</span><span>4倍速</span></div><div class="control-item"><span class="key">空格</span><span>旋转</span></div><div class="control-item"><span class="key">W</span><span>直接落地</span></div><div class="control-item"><span class="key">P</span><span>暂停/继续</span></div></div>
+<div class="btn-row"><button class="btn btn-primary" onclick="game.restart()">新游戏</button><button class="btn btn-secondary" onclick="game.togglePause()">暂停</button></div>
+</div>
+</div></section>
+
+<script>
+const COLORS={I:'#6366f1',O:'#f59e0b',T:'#a855f7',S:'#10b981',Z:'#ef4444',J:'#3b82f6',L:'#f97316',GHOST:'rgba(99,102,241,.2)'};
+const SHAPES={I:[[1,1,1,1]],O:[[1,1],[1,1]],T:[[0,1,0],[1,1,1]],S:[[0,1,1],[1,1,0]],Z:[[1,1,0],[0,1,1]],J:[[1,0,0],[1,1,1]],L:[[0,0,1],[1,1,1]]};
+
+// 音频合成器 - 使用Web Audio API生成音效
+class SoundSynth{
+  constructor(){
+    this.ctx=null;this.enabled=true;this.init();
+    const AudioContext=window.AudioContext||window.webkitAudioContext;
+    if(AudioContext){this.ctx=new AudioContext();}
+  }
+  init(){if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume();}
+  toggle(){this.enabled=!this.enabled;return this.enabled;}
+  playTone(freq,duration,type='sine',vol=.3){
+    if(!this.enabled||!this.ctx)return;
+    const o=this.ctx.createOscillator();const g=this.ctx.createGain();
+    o.type=type;o.frequency.value=freq;g.gain.value=vol;g.gain.exponentialRampToValueAtTime(.01,this.ctx.currentTime+duration);
+    o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+duration);
+  }
+  playMove(){if(this.enabled)this.playTone(200,.05,'sine',.15);}
+  playRotate(){if(this.enabled)this.playTone(400,.08,'sine',.2);}
+  playDrop(){if(this.enabled)this.playTone(150,.1,'sawtooth',.25);}
+  playClear(lines){
+    if(!this.enabled)return;
+    const base=[523,659,784,1046][Math.min(lines-1,3)]||523;
+    for(let i=0;i<lines;i++){
+      setTimeout(()=>this.playTone(base+i*100,.2,'sine',.3),i*80);
+    }
+  }
+  playGameOver(){
+    if(!this.enabled)return;
+    [440,392,349,330,294,262].forEach((f,i)=>setTimeout(()=>this.playTone(f,.4,'sawtooth',.4),i*150));
+  }
+  playLevelUp(){if(this.enabled){this.playTone(523,.1);setTimeout(()=>this.playTone(659,.1),100);setTimeout(()=>this.playTone(784,.2),200);}}
+}
+
+// 背景音乐 - 简单旋律循环
+class BGM{
+  constructor(){
+    this.ctx=null;this.enabled=true;this.playing=false;this.interval=null;
+    const AudioContext=window.AudioContext||window.webkitAudioContext;
+    if(AudioContext)this.ctx=new AudioContext();
+  }
+  toggle(){this.enabled=!this.enabled;if(this.enabled&&this.playing)this.start();else if(!this.enabled)this.stop();return this.enabled;}
+  playNote(freq,duration){
+    if(!this.ctx||!this.enabled)return;
+    const o=this.ctx.createOscillator();const g=this.ctx.createGain();
+    o.type='triangle';o.frequency.value=freq;g.gain.value=.08;g.gain.setValueAtTime(.08,this.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.01,this.ctx.currentTime+duration);
+    o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+duration);
+  }
+  start(){
+    if(this.playing||!this.enabled)return;this.playing=true;
+    const melody=[523,392,440,349,392,330,349,262,294,330,349,392,440,523,440,392];
+    let i=0;
+    this.interval=setInterval(()=>{
+      if(!this.enabled){this.stop();return;}
+      this.playNote(melody[i],.25);
+      i=(i+1)%melody.length;
+    },300);
+  }
+  stop(){this.playing=false;clearInterval(this.interval);this.interval=null;}
+}
+
+class TetrisGame{
+  constructor(){
+    this.canvas=document.getElementById('gameCanvas');this.ctx=this.canvas.getContext('2d');
+    this.nextCanvas=document.getElementById('nextCanvas');this.nextCtx=this.nextCanvas.getContext('2d');
+    this.COLS=10;this.ROWS=20;this.BLOCK_SIZE=30;
+    this.sound=new SoundSynth();this.bgm=new BGM();
+    this.init();this.setupEventListeners();this.setupMobileControls();
+  }
+  init(){
+    this.board=Array(this.ROWS).fill(null).map(()=>Array(this.COLS).fill(0));
+    this.score=0;this.level=1;this.lines=0;this.isGameOver=false;this.isPaused=false;
+    this.dropCounter=0;this.dropInterval=1000;this.lastTime=0;this.combo=0;
+    this.currentPiece=null;this.nextPiece=null;
+    this.isFastDropping=false;this.lastKeyTime={};
+    this.spawnPiece();this.gameLoop();this.bgm.start();
+  }
+  createPiece(){
+    const types=Object.keys(SHAPES);const type=types[Math.floor(Math.random()*types.length)];const shape=SHAPES[type];
+    return{shape:shape.map(r=>[...r]),type,color:COLORS[type],x:Math.floor((this.COLS-shape[0].length)/2),y:0};
+  }
+  spawnPiece(){
+    if(!this.nextPiece)this.nextPiece=this.createPiece();
+    this.currentPiece=this.nextPiece;this.nextPiece=this.createPiece();
+    if(!this.isValidPosition(this.currentPiece,0,0)){this.gameOver();return;}
+    this.drawNextPiece();
+  }
+  rotate(piece,clockwise=true){
+    const rows=piece.shape.length,cols=piece.shape[0].length;
+    const rotated=Array(cols).fill(null).map(()=>Array(rows).fill(0));
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+      if(clockwise)rotated[x][rows-1-y]=piece.shape[y][x];
+      else rotated[cols-1-x][y]=piece.shape[y][x];
+    }
+    return{...piece,shape:rotated};
+  }
+  isValidPosition(piece,offsetX,offsetY,newShape=null){
+    const shape=newShape||piece.shape;
+    for(let y=0;y<shape.length;y++)for(let x=0;x<shape[y].length;x++){
+      if(shape[y][x]){
+        const nx=piece.x+x+offsetX,ny=piece.y+y+offsetY;
+        if(nx<0||nx>=this.COLS||ny>=this.ROWS)return false;
+        if(ny>=0&&this.board[ny][nx])return false;
+      }
+    }
+    return true;
+  }
+  lockPiece(){
+    for(let y=0;y<this.currentPiece.shape.length;y++)
+      for(let x=0;x<this.currentPiece.shape[y].length;x++)
+        if(this.currentPiece.shape[y][x]){
+          const by=this.currentPiece.y+y,bx=this.currentPiece.x+x;
+          if(by>=0)this.board[by][bx]=this.currentPiece.type;
+        }
+    this.sound.playDrop();this.clearLines();this.spawnPiece();
+  }
+  clearLines(){
+    const clearedRows=[];
+    for(let y=this.ROWS-1;y>=0;y--){
+      if(this.board[y].every(c=>c!==0)){clearedRows.push(y);this.board.splice(y,1);this.board.unshift(Array(this.COLS).fill(0));y++;}
+    }
+    if(clearedRows.length>0){
+      this.playLineClearAnimation(clearedRows);
+      const pts=[0,100,300,600,1000];
+      this.score+=(pts[clearedRows.length]*this.level)+(this.combo*50);
+      this.lines+=clearedRows.length;this.combo++;
+      const newLevel=Math.floor(this.lines/10)+1;
+      if(newLevel>this.level){this.level=newLevel;this.sound.playLevelUp();}
+      else{this.sound.playClear(clearedRows.length);}
+      this.dropInterval=Math.max(100,1000-(this.level-1)*80);
+      this.showCombo(clearedRows.length,this.combo);this.updateUI();
+    }else{this.combo=0;}
+  }
+  playLineClearAnimation(rows){
+    const wrapper=document.querySelector('.game-canvas-wrapper');
+    rows.forEach(rowY=>{
+      const flash=document.createElement('div');flash.className='line-flash';
+      flash.style.top=(20+rowY*30)+'px';flash.style.animation='flashAnim .4s ease-out';
+      wrapper.appendChild(flash);
+      setTimeout(()=>flash.remove(),400);
+    });
+  }
+  showCombo(lines,combo){
+    const d=document.getElementById('comboDisplay');
+    if(lines>1){d.textContent=lines+'连消! x'+combo;d.classList.add('show');setTimeout(()=>d.classList.remove('show'),1000);}
+  }
+  hardDrop(){while(this.isValidPosition(this.currentPiece,0,1)){this.currentPiece.y++;this.score+=2;}this.lockPiece();this.updateUI();}
+  move(dx,dy){
+    if(this.isValidPosition(this.currentPiece,dx,dy)){
+      this.currentPiece.x+=dx;this.currentPiece.y+=dy;
+      if(dy>0){this.score++;this.updateUI();this.sound.playMove();}
+      else if(dx!==0){this.sound.playMove();}
+      return true;
+    }
+    return false;
+  }
+  rotatePiece(clockwise=true){
+    const r=this.rotate(this.currentPiece,clockwise);
+    for(const k of[0,-1,1,-2,2]){
+      if(this.isValidPosition(r,k,0,r.shape)){
+        this.currentPiece.shape=r.shape;this.currentPiece.x+=k;this.sound.playRotate();return;
+      }
+    }
+  }
+  update(deltaTime){
+    if(this.isGameOver||this.isPaused)return;
+    this.dropCounter+=deltaTime*(this.isFastDropping?4:1);
+    if(this.dropCounter>this.dropInterval){
+      if(!this.move(0,1))this.lockPiece();
+      this.dropCounter=0;
+    }
+  }
+  draw(){
+    this.ctx.fillStyle='#12121a';this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+    this.drawGrid();this.drawBoard();
+    if(this.currentPiece){this.drawGhostPiece();this.drawPiece(this.currentPiece);}
+  }
+  drawGrid(){
+    this.ctx.strokeStyle='#2a2a3a';this.ctx.lineWidth=1;this.ctx.globalAlpha=.3;
+    for(let x=0;x<=this.COLS;x++){this.ctx.beginPath();this.ctx.moveTo(x*this.BLOCK_SIZE,0);this.ctx.lineTo(x*this.BLOCK_SIZE,this.canvas.height);this.ctx.stroke();}
+    for(let y=0;y<=this.ROWS;y++){this.ctx.beginPath();this.ctx.moveTo(0,y*this.BLOCK_SIZE);this.ctx.lineTo(this.canvas.width,y*this.BLOCK_SIZE);this.ctx.stroke();}
+    this.ctx.globalAlpha=1;
+  }
+  drawBoard(){
+    for(let y=0;y<this.ROWS;y++)for(let x=0;x<this.COLS;x++)
+      if(this.board[y][x])this.drawBlock(this.ctx,x,y,COLORS[this.board[y][x]],true);
+  }
+  drawGhostPiece(){
+    let gy=this.currentPiece.y;
+    while(this.isValidPosition(this.currentPiece,0,gy-this.currentPiece.y+1))gy++;
+    for(let y=0;y<this.currentPiece.shape.length;y++)
+      for(let x=0;x<this.currentPiece.shape[y].length;x++)
+        if(this.currentPiece.shape[y][x])this.drawBlock(this.ctx,this.currentPiece.x+x,gy+y,COLORS.GHOST,false);
+  }
+  drawPiece(p){
+    for(let y=0;y<p.shape.length;y++)
+      for(let x=0;x<p.shape[y].length;x++)
+        if(p.shape[y][x])this.drawBlock(this.ctx,p.x+x,p.y+y,p.color,true);
+  }
+  drawBlock(ctx,x,y,color,glow){
+    const px=x*this.BLOCK_SIZE,py=y*this.BLOCK_SIZE,size=this.BLOCK_SIZE-2;
+    if(glow&&color!==COLORS.GHOST){ctx.shadowColor=color;ctx.shadowBlur=10;}
+    ctx.fillStyle=color;ctx.fillRect(px+1,py+1,size,size);
+    ctx.fillStyle='rgba(255,255,255,.3)';ctx.fillRect(px+1,py+1,size,4);ctx.fillRect(px+1,py+1,4,size);
+    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(px+1,py+size-3,size,3);ctx.fillRect(px+size-3,py+1,3,size);
+    ctx.shadowBlur=0;
+  }
+  drawNextPiece(){
+    this.nextCtx.fillStyle='#12121a';this.nextCtx.fillRect(0,0,this.nextCanvas.width,this.nextCanvas.height);
+    if(!this.nextPiece)return;
+    const bs=25,ox=(this.nextCanvas.width-this.nextPiece.shape[0].length*bs)/2,oy=(this.nextCanvas.height-this.nextPiece.shape.length*bs)/2;
+    for(let y=0;y<this.nextPiece.shape.length;y++)for(let x=0;x<this.nextPiece.shape[y].length;x++){
+      if(this.nextPiece.shape[y][x]){
+        const px=ox+x*bs,py=oy+y*bs;
+        this.nextCtx.fillStyle=this.nextPiece.color;this.nextCtx.fillRect(px,py,bs-2,bs-2);
+        this.nextCtx.fillStyle='rgba(255,255,255,.3)';this.nextCtx.fillRect(px,py,bs-2,3);this.nextCtx.fillRect(px,py,3,bs-2);
+      }
+    }
+  }
+  gameLoop(){
+    const now=Date.now(),dt=now-this.lastTime;this.lastTime=now;
+    this.update(dt);this.draw();
+    requestAnimationFrame(()=>this.gameLoop());
+  }
+  gameOver(){this.isGameOver=true;this.sound.playGameOver();this.bgm.stop();document.getElementById('finalScore').textContent=this.score;document.getElementById('gameOver').style.display='block';}
+  restart(){document.getElementById('gameOver').style.display='none';document.getElementById('pauseOverlay').style.display='none';this.init();this.updateUI();}
+  togglePause(){if(this.isGameOver)return;this.isPaused=!this.isPaused;document.getElementById('pauseOverlay').style.display=this.isPaused?'block':'none';if(this.isPaused)this.bgm.stop();else this.bgm.start();}
+  updateUI(){document.getElementById('score').textContent=this.score.toLocaleString();document.getElementById('level').textContent=this.level;document.getElementById('lines').textContent=this.lines;}
+  setupEventListeners(){
+    document.addEventListener('keydown',e=>{
+      if(this.isGameOver)return;
+      const key=e.key.toLowerCase(),now=Date.now();
+      switch(key){
+        case 'a':case 'arrowleft':e.preventDefault();this.move(-1,0);break;
+        case 'd':case 'arrowright':e.preventDefault();this.move(1,0);break;
+        case 's':case 'arrowdown':
+          e.preventDefault();
+          const lastTime=this.lastKeyTime['s']||0;
+          if(now-lastTime<300){this.isFastDropping=true;document.getElementById('speedIndicator').classList.add('active');}
+          this.lastKeyTime['s']=now;
+          this.move(0,1);
+          break;
+        case 'w':e.preventDefault();this.hardDrop();break;
+        case ' ':e.preventDefault();this.rotatePiece();break;
+        case 'p':e.preventDefault();this.togglePause();break;
+        case 'z':if(e.ctrlKey||e.metaKey){e.preventDefault();this.rotatePiece(false);}break;
+      }
+    });
+    document.addEventListener('keyup',e=>{
+      const key=e.key.toLowerCase();
+      if(key==='s'||key==='arrowdown'){this.isFastDropping=false;document.getElementById('speedIndicator').classList.remove('active');}
+    });
+  }
+  setupMobileControls(){
+    document.querySelectorAll('.mobile-btn').forEach(b=>{
+      b.addEventListener('click',()=>{
+        const k=b.dataset.key;
+        if(k==='s'){
+          const now=Date.now();
+          if(now-(this.lastKeyTime['s']||0)<300){this.isFastDropping=true;document.getElementById('speedIndicator').classList.add('active');setTimeout(()=>{this.isFastDropping=false;document.getElementById('speedIndicator').classList.remove('active');},1000);}
+          this.lastKeyTime['s']=now;
+        }
+        this.handleInput(k);
+      });
+    });
+  }
+  handleInput(key){
+    if(this.isGameOver||this.isPaused)return;
+    switch(key){case 'a':case 'arrowleft':this.move(-1,0);break;case 'd':case 'arrowright':this.move(1,0);break;case 's':case 'arrowdown':this.move(0,1);break;case 'w':this.hardDrop();break;case ' ':this.rotatePiece();break;}
+  }
+}
+
+const game=new TetrisGame();
+
+// 主题切换
+const themeToggle=document.getElementById('themeToggle'),html=document.documentElement;
+const savedTheme=localStorage.getItem('theme')||'dark';html.setAttribute('data-theme',savedTheme);
+themeToggle.addEventListener('click',()=>{const t=html.getAttribute('data-theme')==='dark'?'light':'dark';html.setAttribute('data-theme',t);localStorage.setItem('theme',t);});
+
+// 音效开关
+const soundToggle=document.getElementById('soundToggle'),soundOn=document.getElementById('soundIconOn'),soundOff=document.getElementById('soundIconOff');
+soundToggle.addEventListener('click',()=>{
+  const e=game.sound.toggle();game.bgm.toggle();
+  if(e){soundOn.style.display='block';soundOff.style.display='none';soundToggle.classList.remove('muted');}
+  else{soundOn.style.display='none';soundOff.style.display='block';soundToggle.classList.add('muted');}
+});
+</script>
+<style>
+@keyframes flashAnim{0%{opacity:1;transform:scaleX(0)}50%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1.2)}}
+</style>
+</body>
+</html>
