@@ -13,6 +13,7 @@
       box-sizing: border-box;
     }
 
+    /* Dark theme (default) */
     :root {
       --bg-primary: #0a0a0f;
       --bg-secondary: #12121a;
@@ -24,6 +25,24 @@
       --accent-hover: #818cf8;
       --success: #10b981;
       --warning: #f59e0b;
+      --hero-gradient: rgba(99, 102, 241, 0.15);
+      --nav-bg: rgba(10, 10, 15, 0.8);
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --bg-primary: #fafafa;
+      --bg-secondary: #f0f0f5;
+      --bg-card: #ffffff;
+      --border-color: #e5e5ea;
+      --text-primary: #1a1a2e;
+      --text-secondary: #6b6b7b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --hero-gradient: rgba(99, 102, 241, 0.08);
+      --nav-bg: rgba(250, 250, 250, 0.9);
     }
 
     body {
@@ -32,6 +51,7 @@
       color: var(--text-primary);
       line-height: 1.6;
       min-height: 100vh;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     /* Navigation */
@@ -40,11 +60,12 @@
       top: 0;
       left: 0;
       right: 0;
-      background: rgba(10, 10, 15, 0.8);
+      background: var(--nav-bg);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border-color);
       z-index: 1000;
       padding: 0 24px;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .nav-container {
@@ -73,6 +94,12 @@
       font-size: 14px;
     }
 
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .nav-links {
       display: flex;
       gap: 8px;
@@ -91,6 +118,47 @@
     .nav-links a:hover {
       color: var(--text-primary);
       background: var(--bg-card);
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .theme-toggle .sun-icon {
+      display: none;
+    }
+
+    .theme-toggle .moon-icon {
+      display: block;
+    }
+
+    [data-theme="light"] .theme-toggle .sun-icon {
+      display: block;
+    }
+
+    [data-theme="light"] .theme-toggle .moon-icon {
+      display: none;
     }
 
     /* Hero Section */
@@ -112,7 +180,7 @@
       transform: translate(-50%, -50%);
       width: 800px;
       height: 800px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, var(--hero-gradient) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -134,6 +202,7 @@
       font-size: 13px;
       color: var(--text-secondary);
       margin-bottom: 32px;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .hero-badge .dot {
@@ -262,6 +331,7 @@
       border: 1px solid var(--border-color);
       border-radius: 20px;
       padding: 32px;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .about-card h3 {
@@ -303,6 +373,7 @@
       border-radius: 16px;
       padding: 24px;
       text-align: center;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .stat-value {
@@ -380,6 +451,7 @@
       border-radius: 6px;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
+      transition: background 0.3s ease;
     }
 
     /* Projects Section */
@@ -477,6 +549,7 @@
       padding: 60px 40px;
       max-width: 600px;
       margin: 0 auto;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .contact-card h2 {
@@ -521,6 +594,7 @@
       border-top: 1px solid var(--border-color);
       padding: 40px 24px;
       text-align: center;
+      transition: border-color 0.3s ease;
     }
 
     .footer-text {
@@ -537,6 +611,10 @@
     @media (max-width: 768px) {
       .nav-links {
         display: none;
+      }
+
+      .nav-right {
+        gap: 8px;
       }
 
       .about-grid {
@@ -565,11 +643,31 @@
   <nav>
     <div class="nav-container">
       <a href="#" class="nav-logo">Steven Liu</a>
-      <div class="nav-links">
-        <a href="#about">关于</a>
-        <a href="#skills">技能</a>
-        <a href="#projects">项目</a>
-        <a href="#contact">联系</a>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="#about">关于</a>
+          <a href="#skills">技能</a>
+          <a href="#projects">项目</a>
+          <a href="#contact">联系</a>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="切换主题">
+          <!-- Moon icon for dark mode -->
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <!-- Sun icon for light mode -->
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -823,6 +921,22 @@
   </footer>
 
   <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
@@ -840,10 +954,15 @@
     // Navbar background on scroll
     const nav = document.querySelector('nav');
     window.addEventListener('scroll', () => {
+      const currentTheme = html.getAttribute('data-theme');
       if (window.scrollY > 100) {
-        nav.style.background = 'rgba(10, 10, 15, 0.95)';
+        nav.style.background = currentTheme === 'dark' 
+          ? 'rgba(10, 10, 15, 0.95)' 
+          : 'rgba(250, 250, 250, 0.95)';
       } else {
-        nav.style.background = 'rgba(10, 10, 15, 0.8)';
+        nav.style.background = currentTheme === 'dark' 
+          ? 'rgba(10, 10, 15, 0.8)' 
+          : 'rgba(250, 250, 250, 0.9)';
       }
     });
   </script>
