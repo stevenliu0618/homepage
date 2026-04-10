@@ -7,11 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --pixel-bg: #1a1a2e;
@@ -34,14 +30,11 @@
             overflow: hidden;
         }
 
-        /* 背景装饰 */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background-image: 
                 radial-gradient(circle at 20% 80%, rgba(65, 105, 225, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(124, 252, 0, 0.1) 0%, transparent 50%);
@@ -50,10 +43,7 @@
 
         .game-container {
             position: relative;
-            box-shadow: 
-                0 0 0 4px #333,
-                0 0 0 8px #666,
-                0 20px 60px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 0 4px #333, 0 0 0 8px #666, 0 20px 60px rgba(0,0,0,0.8);
             border-radius: 12px;
             overflow: hidden;
             background: #000;
@@ -68,20 +58,16 @@
 
         .ui-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
         }
 
         /* ========== 开始界面 ========== */
         .start-screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: linear-gradient(180deg, #1a1a3e 0%, #162050 50%, #0d1a33 100%);
             display: flex;
             flex-direction: column;
@@ -90,29 +76,20 @@
             z-index: 100;
             pointer-events: auto;
         }
+        .start-screen.hidden { display: none; }
 
-        .start-screen.hidden {
-            display: none;
-        }
-
-        /* 像素风装饰边框 */
         .pixel-border {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            bottom: 20px;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
             border: 4px dashed rgba(255, 215, 0, 0.3);
             pointer-events: none;
         }
 
-        /* 游戏标题 */
         .title-container {
             position: relative;
             margin-bottom: 30px;
             animation: float 3s ease-in-out infinite;
         }
-
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -122,15 +99,12 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 36px;
             color: #FFD700;
-            text-shadow: 
-                4px 4px 0 #8B4513,
-                -2px -2px 0 #FFA500;
+            text-shadow: 4px 4px 0 #8B4513, -2px -2px 0 #FFA500;
             margin-bottom: 15px;
             letter-spacing: 4px;
             text-align: center;
             animation: glow 2s ease-in-out infinite;
         }
-
         @keyframes glow {
             0%, 100% { filter: brightness(1); }
             50% { filter: brightness(1.2); }
@@ -140,12 +114,10 @@
             display: inline-block;
             animation: wave 1s ease-in-out infinite;
         }
-
         .game-title span:nth-child(1) { animation-delay: 0s; }
         .game-title span:nth-child(2) { animation-delay: 0.1s; }
         .game-title span:nth-child(3) { animation-delay: 0.2s; }
         .game-title span:nth-child(4) { animation-delay: 0.3s; }
-
         @keyframes wave {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
@@ -160,18 +132,15 @@
             text-align: center;
         }
 
-        /* 装饰鱼群 */
         .decoration-fish {
             position: absolute;
             font-size: 24px;
             opacity: 0.3;
             animation: swim 8s linear infinite;
         }
-
         .decoration-fish:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
         .decoration-fish:nth-child(2) { top: 60%; right: 15%; animation-delay: 3s; }
         .decoration-fish:nth-child(3) { top: 80%; left: 20%; animation-delay: 6s; }
-
         @keyframes swim {
             0% { transform: translateX(-50px) scaleX(1); }
             50% { transform: translateX(50px) scaleX(1); }
@@ -179,7 +148,6 @@
             100% { transform: translateX(-50px) scaleX(-1); }
         }
 
-        /* 开始按钮 */
         .start-btn {
             background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
             color: #fff;
@@ -192,44 +160,23 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 3px;
-            box-shadow: 
-                0 6px 0 #196619,
-                0 8px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 0 #196619, 0 8px 20px rgba(0,0,0,0.3);
             margin-top: 20px;
             position: relative;
             overflow: hidden;
         }
-
         .start-btn::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: left 0.5s;
         }
+        .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #196619, 0 12px 25px rgba(0,0,0,0.4); }
+        .start-btn:hover::before { left: 100%; }
+        .start-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #196619, 0 4px 10px rgba(0,0,0,0.3); }
 
-        .start-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 8px 0 #196619,
-                0 12px 25px rgba(0,0,0,0.4);
-        }
-
-        .start-btn:hover::before {
-            left: 100%;
-        }
-
-        .start-btn:active {
-            transform: translateY(4px);
-            box-shadow: 
-                0 2px 0 #196619,
-                0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        /* 版本信息 */
         .version-info {
             position: absolute;
             bottom: 30px;
@@ -241,72 +188,74 @@
         /* ========== HUD 界面 ========== */
         .hud {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 15px; left: 15px;
             display: flex;
-            gap: 15px;
+            gap: 12px;
             pointer-events: auto;
+            flex-wrap: wrap;
+            max-width: 500px;
         }
 
         .hud-item {
             background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
             border: 3px solid #FFD700;
             border-radius: 8px;
-            padding: 10px 15px;
+            padding: 8px 12px;
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 
-                0 4px 8px rgba(0,0,0,0.4),
-                inset 0 1px 0 rgba(255,255,255,0.1);
-            min-width: 100px;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            min-width: 80px;
             transition: transform 0.2s;
         }
-
-        .hud-item:hover {
-            transform: scale(1.05);
-        }
+        .hud-item:hover { transform: scale(1.05); }
 
         .hud-icon {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            width: 24px; height: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
             background: rgba(255,255,255,0.1);
             border-radius: 6px;
         }
-
         .hud-value {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             color: #FFD700;
             text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
         }
-
         .hud-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #888;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        /* 等级进度条 */
+        /* 装备信息栏 */
+        .hud-equip {
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
+            border: 2px solid #87CEEB;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #87CEEB;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hud-equip-icon { font-size: 14px; }
+
+        /* 经验条 */
         .xp-bar {
             position: absolute;
-            top: 75px;
-            left: 15px;
-            width: 200px;
-            height: 8px;
+            top: 62px; left: 15px;
+            width: 200px; height: 8px;
             background: rgba(0,0,0,0.6);
             border: 2px solid #666;
             border-radius: 4px;
             overflow: hidden;
         }
-
         .xp-fill {
             height: 100%;
             background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
@@ -318,57 +267,187 @@
         /* ========== 音频控制 ========== */
         .audio-controls {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 10px;
+            top: 15px; right: 15px;
+            display: flex; gap: 10px;
             z-index: 100;
             pointer-events: auto;
         }
-
         .audio-btn {
-            width: 42px;
-            height: 42px;
+            width: 42px; height: 42px;
             background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
             border: 3px solid #FFD700;
             border-radius: 8px;
             color: #FFD700;
             font-size: 18px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
         }
+        .audio-btn:hover { transform: scale(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.5); }
+        .audio-btn.muted { opacity: 0.5; border-color: #666; color: #666; }
 
-        .audio-btn:hover {
-            transform: scale(1.1);
-            background: linear-gradient(180deg, rgba(50,50,70,0.9) 0%, rgba(30,30,50,0.95) 100%);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+        /* ========== 抛竿等待UI ========== */
+        .casting-ui {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .casting-ui.active { display: flex; }
+
+        .casting-content {
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
+            border: 3px solid #4169E1;
+            border-radius: 12px;
+            padding: 25px 40px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
 
-        .audio-btn.muted {
-            opacity: 0.5;
-            border-color: #666;
+        .casting-icon {
+            font-size: 48px;
+            animation: bobbing 1.5s ease-in-out infinite;
+        }
+        @keyframes bobbing {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+
+        .casting-text {
+            color: #87CEEB;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .casting-dots {
+            display: inline-block;
+            animation: dots 1.5s steps(4) infinite;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+        }
+
+        .casting-hint {
             color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        /* ========== 上钩提示UI ========== */
+        .bite-alert-ui {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            z-index: 150;
+        }
+        .bite-alert-ui.active {
+            display: flex;
+            animation: alertShake 0.1s ease-in-out infinite;
+        }
+        @keyframes alertShake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            25% { transform: translate(-50%, -50%) translateX(-3px); }
+            75% { transform: translate(-50%, -50%) translateX(3px); }
+        }
+
+        .bite-alert-content {
+            background: linear-gradient(180deg, rgba(180,0,0,0.95) 0%, rgba(120,0,0,0.98) 100%);
+            border: 4px solid #FF4444;
+            border-radius: 16px;
+            padding: 30px 50px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255,0,0,0.5), 0 0 80px rgba(255,0,0,0.2);
+            animation: alertPulse 0.5s ease-in-out infinite;
+        }
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(255,0,0,0.5); }
+            50% { box-shadow: 0 0 60px rgba(255,0,0,0.8), 0 0 100px rgba(255,0,0,0.3); }
+        }
+
+        .bite-alert-icon {
+            font-size: 56px;
+            animation: fishWiggle 0.3s ease-in-out infinite;
+        }
+        @keyframes fishWiggle {
+            0%, 100% { transform: rotate(-10deg) scale(1); }
+            50% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        .bite-alert-text {
+            color: #FFD700;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+            margin-top: 10px;
+            animation: textFlash 0.5s ease-in-out infinite;
+        }
+        @keyframes textFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .bite-alert-key {
+            color: #FFF;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .bite-alert-key kbd {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: 4px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 3px 0 #8B4513;
+            animation: keyPulse 0.8s ease-in-out infinite;
+            text-transform: uppercase;
+        }
+        @keyframes keyPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 限时进度条 */
+        .bite-alert-bar-wrapper {
+            width: 200px;
+            height: 10px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #666;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        .bite-alert-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #FF4444 0%, #FFD700 50%, #32CD32 100%);
+            border-radius: 3px;
+            transition: width 0.1s linear;
         }
 
         /* ========== 钓鱼小游戏 UI ========== */
         .fishing-ui {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             display: none;
             flex-direction: column;
             align-items: center;
             gap: 20px;
         }
-
-        .fishing-ui.active {
-            display: flex;
-        }
+        .fishing-ui.active { display: flex; }
 
         .fishing-header {
             background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
@@ -393,14 +472,11 @@
             padding: 8px;
             background: linear-gradient(180deg, #2a2a4a 0%, #1a1a3a 100%);
             border-radius: 20px;
-            box-shadow: 
-                0 8px 20px rgba(0,0,0,0.5),
-                inset 0 2px 4px rgba(255,255,255,0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1);
         }
 
         .fishing-bar {
-            width: 40px;
-            height: 320px;
+            width: 40px; height: 320px;
             background: linear-gradient(180deg, #ff4444 0%, #ff6666 30%, #90EE90 70%, #32CD32 100%);
             border-radius: 15px;
             position: relative;
@@ -413,9 +489,7 @@
             width: 100%;
             background: linear-gradient(to bottom, #90EE90, #32CD32, #90EE90);
             border-radius: 12px;
-            box-shadow: 
-                0 0 20px rgba(50,205,50,0.8),
-                inset 0 0 10px rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(50,205,50,0.8), inset 0 0 10px rgba(255,255,255,0.3);
             border: 2px solid #228B22;
         }
 
@@ -427,22 +501,17 @@
             border: 3px solid #fff;
             border-radius: 8px;
             left: -4px;
-            box-shadow: 
-                0 4px 8px rgba(0,0,0,0.4),
-                inset 0 2px 4px rgba(255,255,255,0.5);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.5);
             transition: top 0.08s;
         }
-
         .fishing-cursor::before {
             content: '🐟';
             position: absolute;
-            left: -25px;
-            top: 50%;
+            left: -25px; top: 50%;
             transform: translateY(-50%);
             font-size: 16px;
         }
 
-        /* 进度信息 */
         .fishing-info {
             background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
             border: 3px solid #666;
@@ -467,7 +536,6 @@
             text-align: center;
             margin-bottom: 15px;
         }
-
         .progress-display.success { color: #32CD32; }
         .progress-display.warning { color: #FFD700; }
         .progress-display.danger { color: #FF6B6B; }
@@ -478,7 +546,6 @@
             text-align: center;
             line-height: 1.6;
         }
-
         .fishing-hint kbd {
             background: rgba(255,255,255,0.2);
             padding: 2px 8px;
@@ -490,8 +557,7 @@
         /* ========== 对话框 ========== */
         .dialog-box {
             position: absolute;
-            bottom: 30px;
-            left: 50%;
+            bottom: 30px; left: 50%;
             transform: translateX(-50%);
             width: 90%;
             max-width: 700px;
@@ -502,25 +568,15 @@
             color: #fff;
             display: none;
             pointer-events: auto;
-            box-shadow: 
-                0 10px 30px rgba(0,0,0,0.6),
-                inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
         }
-
         .dialog-box.active {
             display: block;
             animation: dialogSlideUp 0.3s ease-out;
         }
-
         @keyframes dialogSlideUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
         .dialog-header {
@@ -531,59 +587,29 @@
             padding-bottom: 15px;
             border-bottom: 2px solid rgba(255,215,0,0.3);
         }
-
         .dialog-avatar {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             background: linear-gradient(135deg, #4169E1 0%, #228B22 100%);
             border-radius: 10px;
             border: 3px solid #FFD700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 28px;
         }
-
-        .dialog-title {
-            color: #FFD700;
-            font-weight: bold;
-            font-size: 18px;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-        }
-
-        .dialog-text {
-            color: #fff;
-            font-size: 16px;
-            line-height: 1.8;
-            padding-left: 5px;
-        }
-
-        .dialog-close-hint {
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-            font-size: 11px;
-            color: #666;
-        }
+        .dialog-title { color: #FFD700; font-weight: bold; font-size: 18px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+        .dialog-text { color: #fff; font-size: 16px; line-height: 1.8; padding-left: 5px; }
+        .dialog-close-hint { position: absolute; bottom: 10px; right: 15px; font-size: 11px; color: #666; }
 
         /* ========== 背包界面 ========== */
         .inventory-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
             display: none;
             pointer-events: auto;
             backdrop-filter: blur(5px);
         }
-
-        .inventory-overlay.active {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        .inventory-overlay.active { display: flex; justify-content: center; align-items: center; }
 
         .inventory {
             width: 500px;
@@ -606,197 +632,313 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        .inventory-title {
-            color: #FFD700;
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .inventory-title { color: #FFD700; font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
         .close-btn {
-            color: #FF6B6B;
-            font-size: 28px;
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: #FF6B6B; font-size: 28px; cursor: pointer;
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
             border-radius: 8px;
             transition: all 0.2s;
             background: rgba(255,107,107,0.1);
         }
+        .close-btn:hover { background: rgba(255,107,107,0.3); transform: scale(1.1); }
 
-        .close-btn:hover {
-            background: rgba(255,107,107,0.3);
-            transform: scale(1.1);
-        }
-
-        /* 背包统计 */
         .inventory-stats {
-            display: flex;
-            gap: 20px;
+            display: flex; gap: 20px;
             padding: 15px 20px;
             background: rgba(255,255,255,0.05);
             border-bottom: 1px solid rgba(255,215,0,0.2);
         }
+        .stat-item { display: flex; align-items: center; gap: 8px; color: #87CEEB; font-size: 13px; }
+        .stat-value { color: #FFD700; font-weight: bold; font-size: 16px; }
 
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #87CEEB;
-            font-size: 13px;
-        }
-
-        .stat-value {
-            color: #FFD700;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        /* 鱼类列表 */
-        .fish-list {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .fish-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .fish-list::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.3);
-        }
-
-        .fish-list::-webkit-scrollbar-thumb {
-            background: #FFD700;
-            border-radius: 4px;
-        }
+        .fish-list { max-height: 300px; overflow-y: auto; padding: 15px; }
+        .fish-list::-webkit-scrollbar { width: 8px; }
+        .fish-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .fish-list::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
 
         .fish-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            margin-bottom: 10px;
+            display: flex; align-items: center;
+            padding: 15px; margin-bottom: 10px;
             background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
             border: 2px solid transparent;
             border-radius: 10px;
             transition: all 0.2s;
             cursor: pointer;
         }
-
         .fish-item:hover {
             background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
             border-color: rgba(255,215,0,0.5);
             transform: translateX(5px);
         }
-
-        .fish-item:last-child {
-            margin-bottom: 0;
-        }
+        .fish-item:last-child { margin-bottom: 0; }
 
         .fish-icon-wrapper {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             margin-right: 15px;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 28px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
+        .fish-info { flex: 1; }
+        .fish-name { font-weight: bold; font-size: 16px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .fish-rarity { font-size: 11px; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .fish-rarity.common { background: rgba(144,238,144,0.2); color: #90EE90; }
+        .fish-rarity.uncommon { background: rgba(135,206,235,0.2); color: #87CEEB; }
+        .fish-rarity.rare { background: rgba(255,215,0,0.2); color: #FFD700; }
+        .fish-rarity.legendary { background: linear-gradient(90deg, rgba(255,0,255,0.3) 0%, rgba(255,215,0,0.3) 100%); color: #FF00FF; font-weight: bold; }
+        .fish-value { color: #FFD700; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .fish-count { background: rgba(255,215,0,0.2); color: #FFD700; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; }
 
-        .fish-info {
-            flex: 1;
+        .empty-inventory { text-align: center; padding: 40px; color: #666; font-size: 16px; }
+        .empty-inventory-icon { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
+
+        /* ========== 商店界面 ========== */
+        .shop-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+            z-index: 50;
+        }
+        .shop-overlay.active { display: flex; justify-content: center; align-items: center; }
+
+        .shop {
+            width: 600px;
+            max-height: 550px;
+            background: linear-gradient(180deg, rgba(10,10,30,0.98) 0%, rgba(20,20,50,0.99) 100%);
+            border: 4px solid #FFD700;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,0.1);
+            overflow: hidden;
         }
 
-        .fish-name {
+        .shop-header {
+            background: linear-gradient(90deg, #2a2a5a 0%, #3a3a6a 100%);
+            padding: 18px 20px;
+            border-bottom: 3px solid #FFD700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shop-title { color: #FFD700; font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .shop-money { color: #FFD700; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+
+        .shop-tabs {
+            display: flex;
+            border-bottom: 2px solid rgba(255,215,0,0.3);
+        }
+        .shop-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            color: #888;
             font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            background: rgba(0,0,0,0.3);
+        }
+        .shop-tab:hover { color: #FFD700; background: rgba(255,215,0,0.05); }
+        .shop-tab.active {
+            color: #FFD700;
+            border-bottom-color: #FFD700;
+            background: rgba(255,215,0,0.1);
+        }
+
+        .shop-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            max-height: 380px;
+        }
+        .shop-content::-webkit-scrollbar { width: 8px; }
+        .shop-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .shop-content::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
+
+        .shop-section { margin-bottom: 20px; }
+        .shop-section:last-child { margin-bottom: 0; }
+        .shop-section-title {
+            color: #87CEEB;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(135,206,235,0.3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .shop-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .shop-item:hover {
+            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
+            border-color: rgba(255,215,0,0.3);
+        }
+        .shop-item.equipped { border-color: rgba(50,205,50,0.5); background: rgba(50,205,50,0.05); }
+        .shop-item.owned { border-color: rgba(135,206,235,0.3); }
+        .shop-item:last-child { margin-bottom: 0; }
+
+        .shop-item-icon {
+            width: 48px; height: 48px;
+            margin-right: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .shop-item-info { flex: 1; min-width: 0; }
+        .shop-item-name {
+            color: #fff;
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .fish-rarity {
-            font-size: 11px;
-            padding: 3px 10px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .equipped-badge {
+            background: rgba(50,205,50,0.3);
+            color: #32CD32;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: normal;
         }
 
-        .fish-rarity.common {
-            background: rgba(144,238,144,0.2);
-            color: #90EE90;
-        }
+        .shop-item-desc { color: #888; font-size: 12px; margin-bottom: 4px; }
 
-        .fish-rarity.uncommon {
-            background: rgba(135,206,235,0.2);
-            color: #87CEEB;
-        }
-
-        .fish-rarity.rare {
-            background: rgba(255,215,0,0.2);
-            color: #FFD700;
-        }
-
-        .fish-rarity.legendary {
-            background: linear-gradient(90deg, rgba(255,0,255,0.3) 0%, rgba(255,215,0,0.3) 100%);
-            color: #FF00FF;
+        .shop-item-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+        .stat-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
             font-weight: bold;
         }
+        .stat-tag.rare { background: rgba(255,215,0,0.2); color: #FFD700; }
+        .stat-tag.legend { background: rgba(255,0,255,0.2); color: #FF00FF; }
+        .stat-tag.zone { background: rgba(50,205,50,0.2); color: #32CD32; }
+        .stat-tag.progress { background: rgba(135,206,235,0.2); color: #87CEEB; }
+        .stat-tag.bite { background: rgba(255,165,0,0.2); color: #FFA500; }
 
-        .fish-value {
-            color: #FFD700;
-            font-weight: bold;
-            font-size: 14px;
+        .shop-item-action {
+            margin-left: 10px;
+            flex-shrink: 0;
             display: flex;
-            align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
 
-        .fish-count {
-            background: rgba(255,215,0,0.2);
-            color: #FFD700;
-            padding: 5px 12px;
-            border-radius: 15px;
+        .shop-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .buy-btn {
+            background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
+            color: #fff;
+            box-shadow: 0 3px 0 #196619;
+        }
+        .buy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #196619; }
+        .buy-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #196619; }
+        .buy-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .sell-btn {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            box-shadow: 0 3px 0 #8B4513;
+        }
+        .sell-btn:hover { transform: translateY(-1px); }
+
+        .sell-all-btn {
+            background: linear-gradient(180deg, #FF6B6B 0%, #DC143C 100%);
+            color: #fff;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 3px 0 #8B0000;
+        }
+        .sell-all-btn:hover { transform: translateY(-1px); }
+
+        .equip-btn {
+            background: linear-gradient(180deg, #4169E1 0%, #2a4ab5 100%);
+            color: #fff;
+            box-shadow: 0 3px 0 #1a2a85;
+        }
+        .equip-btn:hover { transform: translateY(-1px); }
+
+        .equipped-btn {
+            background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
         }
 
-        .empty-inventory {
-            text-align: center;
-            padding: 40px;
+        .disabled-btn {
+            background: #333;
             color: #666;
-            font-size: 16px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
         }
 
-        .empty-inventory-icon {
-            font-size: 48px;
+        .sell-item .shop-item-icon {
+            background: transparent;
+        }
+
+        .shop-sell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255,215,0,0.05);
+            border: 2px solid rgba(255,215,0,0.2);
+            border-radius: 10px;
             margin-bottom: 15px;
-            opacity: 0.5;
+            color: #FFD700;
+            font-size: 14px;
+            gap: 15px;
         }
 
         /* ========== 通知系统 ========== */
         .notification-container {
             position: absolute;
-            top: 100px;
-            left: 50%;
+            top: 90px; left: 50%;
             transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
+            z-index: 200;
         }
-
         .notification {
             background: linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(30,30,60,0.98) 100%);
             border: 3px solid;
@@ -811,92 +953,288 @@
             opacity: 0;
             transform: translateY(-20px);
             transition: all 0.3s ease-out;
+            white-space: nowrap;
         }
-
-        .notification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .notification.success {
-            border-color: #32CD32;
-            color: #32CD32;
-        }
-
-        .notification.warning {
-            border-color: #FFD700;
-            color: #FFD700;
-        }
-
-        .notification.error {
-            border-color: #FF6B6B;
-            color: #FF6B6B;
-        }
-
-        .notification.info {
-            border-color: #87CEEB;
-            color: #87CEEB;
-        }
-
-        .notification-icon {
-            font-size: 24px;
-        }
+        .notification.show { opacity: 1; transform: translateY(0); }
+        .notification.success { border-color: #32CD32; color: #32CD32; }
+        .notification.warning { border-color: #FFD700; color: #FFD700; }
+        .notification.error { border-color: #FF6B6B; color: #FF6B6B; }
+        .notification.info { border-color: #87CEEB; color: #87CEEB; }
+        .notification-icon { font-size: 24px; }
 
         /* ========== 操作提示 ========== */
         .controls-hint {
             position: absolute;
-            bottom: 15px;
-            right: 15px;
+            bottom: 15px; right: 15px;
             background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
             border: 2px solid #666;
             border-radius: 10px;
-            padding: 15px;
+            padding: 12px;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 2;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: opacity 0.3s ease;
         }
-
         .controls-hint-title {
             color: #FFD700;
             font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 13px;
+            margin-bottom: 6px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-
-        .control-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .control-item { display: flex; align-items: center; gap: 8px; }
         .control-key {
             background: linear-gradient(180deg, #444 0%, #333 100%);
             border: 2px solid #666;
             border-radius: 6px;
-            padding: 3px 10px;
+            padding: 2px 8px;
             font-family: monospace;
             font-weight: bold;
             color: #FFD700;
-            min-width: 60px;
+            min-width: 50px;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
+        .control-desc { color: #aaa; }
 
-        .control-desc {
-            color: #aaa;
+        /* ========== 装备界面样式 ========== */
+        .equipment-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+            z-index: 50;
+        }
+        .equipment-overlay.active { display: flex; justify-content: center; align-items: center; }
+
+        .equipment-panel {
+            width: 650px;
+            max-height: 550px;
+            background: linear-gradient(180deg, rgba(10,10,30,0.98) 0%, rgba(20,20,50,0.99) 100%);
+            border: 4px solid #FFD700;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,0.1);
+            overflow: hidden;
+        }
+
+        .equipment-header {
+            background: linear-gradient(90deg, #2a2a5a 0%, #3a3a6a 100%);
+            padding: 18px 20px;
+            border-bottom: 3px solid #FFD700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .equipment-title { color: #FFD700; font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+
+        .equipment-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            max-height: 450px;
+        }
+        .equipment-content::-webkit-scrollbar { width: 8px; }
+        .equipment-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .equipment-content::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
+
+        .equipment-overview {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,215,0,0.05);
+            border: 2px solid rgba(255,215,0,0.2);
+            border-radius: 10px;
+        }
+
+        .equip-slot {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #666;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .equip-slot.equipped {
+            border-color: #32CD32;
+            background: rgba(50,205,50,0.1);
+        }
+        .equip-label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .equip-icon {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        .equip-name {
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .equip-bonus {
+            color: #32CD32;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .equip-section { margin-bottom: 20px; }
+        .equip-section:last-child { margin-bottom: 0; }
+        .equip-section-title {
+            color: #87CEEB;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(135,206,235,0.3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .equip-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .equip-card {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .equip-card:hover {
+            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
+            border-color: rgba(255,215,0,0.3);
+        }
+        .equip-card.active {
+            border-color: #32CD32;
+            background: rgba(50,205,50,0.1);
+        }
+        .equip-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .equip-card-icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .equip-card-name {
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .equip-card-desc {
+            color: #888;
+            font-size: 11px;
+        }
+        .equip-card-locked {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: #FFD700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+        .equip-card-status {
+            position: absolute;
+            top: 5px; right: 5px;
+            color: #32CD32;
+            font-size: 10px;
+        }
+
+        /* ========== 任务面板样式 ========== */
+        .quest-panel {
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
+            border: 3px solid #FFD700;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .quest-header {
+            color: #FFD700;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,215,0,0.3);
+            text-align: center;
+        }
+        .quest-item {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        .quest-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .quest-item.completed {
+            border-color: rgba(50,205,50,0.5);
+            background: rgba(50,205,50,0.1);
+        }
+        .quest-item.in-progress {
+            border-color: rgba(255,215,0,0.3);
+        }
+        .quest-name {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .quest-desc {
+            color: #CCC;
+            font-size: 13px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .quest-progress {
+            color: #87CEEB;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .quest-reward {
+            color: #32CD32;
+            font-size: 13px;
+            padding: 5px 10px;
+            background: rgba(50,205,50,0.1);
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .quest-empty {
+            text-align: center;
+            color: #888;
+            padding: 30px;
+            font-size: 14px;
         }
 
         /* ========== 获得物品弹窗 ========== */
         .catch-modal {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
             display: none;
             justify-content: center;
@@ -904,16 +1242,8 @@
             z-index: 200;
             pointer-events: auto;
         }
-
-        .catch-modal.active {
-            display: flex;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .catch-modal.active { display: flex; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .catch-content {
             background: linear-gradient(180deg, #2a2a5a 0%, #1a1a3a 100%);
@@ -924,73 +1254,35 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             animation: catchBounce 0.5s ease-out;
         }
-
         @keyframes catchBounce {
             0% { transform: scale(0.5); opacity: 0; }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
         }
-
-        .catch-title {
-            font-size: 28px;
-            color: #FFD700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-        }
-
-        .catch-fish {
-            font-size: 80px;
-            margin: 20px 0;
-            animation: fishWiggle 0.5s ease-in-out infinite;
-        }
-
-        @keyframes fishWiggle {
+        .catch-title { font-size: 28px; color: #FFD700; margin-bottom: 20px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+        .catch-fish { font-size: 80px; margin: 20px 0; animation: fishWiggle2 0.5s ease-in-out infinite; }
+        @keyframes fishWiggle2 {
             0%, 100% { transform: rotate(-5deg); }
             50% { transform: rotate(5deg); }
         }
-
-        .catch-name {
-            font-size: 24px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .catch-rarity {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .catch-value {
-            font-size: 20px;
-            color: #FFD700;
-            margin-bottom: 25px;
-        }
-
+        .catch-name { font-size: 24px; color: #fff; margin-bottom: 10px; }
+        .catch-rarity { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; }
+        .catch-rarity.common { background: rgba(144,238,144,0.2); color: #90EE90; }
+        .catch-rarity.uncommon { background: rgba(135,206,235,0.2); color: #87CEEB; }
+        .catch-rarity.rare { background: rgba(255,215,0,0.2); color: #FFD700; }
+        .catch-rarity.legendary { background: rgba(255,0,255,0.2); color: #FF00FF; }
+        .catch-value { font-size: 20px; color: #FFD700; margin-bottom: 25px; }
         .catch-btn {
             background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
-            color: #fff;
-            border: none;
-            padding: 12px 40px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
+            color: #fff; border: none;
+            padding: 12px 40px; font-size: 16px;
+            border-radius: 8px; cursor: pointer;
             font-weight: bold;
             box-shadow: 0 4px 0 #196619;
             transition: all 0.2s;
         }
-
-        .catch-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 #196619;
-        }
-
-        .catch-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #196619;
-        }
+        .catch-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #196619; }
+        .catch-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #196619; }
 
         /* ========== 浮动文字效果 ========== */
         .floating-text {
@@ -1001,49 +1293,17 @@
             text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
             animation: floatUp 1.5s ease-out forwards;
         }
-
         @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.8);
-            }
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(0.8); }
         }
-
         .floating-text.gold { color: #FFD700; }
         .floating-text.exp { color: #87CEEB; }
         .floating-text.health { color: #FF6B6B; }
 
-        /* ========== 加载动画 ========== */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,215,0,0.3);
-            border-radius: 50%;
-            border-top-color: #FFD700;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* ========== 响应式 ========== */
-        @media (max-width: 850px) {
-            .game-container {
-                transform: scale(0.9);
-            }
-        }
-
-        @media (max-width: 750px) {
-            .game-container {
-                transform: scale(0.8);
-            }
-        }
+        @media (max-width: 850px) { .game-container { transform: scale(0.9); } }
+        @media (max-width: 750px) { .game-container { transform: scale(0.8); } }
     </style>
 </head>
 <body>
@@ -1065,8 +1325,7 @@
             </div>
             
             <button class="start-btn" onclick="startGame()">▶ 开始游戏</button>
-            
-            <div class="version-info">v1.0.0 • 日系像素风RPG</div>
+            <div class="version-info">v2.0.0 • 商店版</div>
         </div>
 
         <!-- UI 层 -->
@@ -1091,7 +1350,7 @@
                     <div class="hud-icon">💰</div>
                     <div>
                         <div class="hud-label">金币</div>
-                        <div class="hud-value" id="money">0</div>
+                        <div class="hud-value" id="money">50</div>
                     </div>
                 </div>
                 <div class="hud-item" title="当前等级">
@@ -1101,6 +1360,18 @@
                         <div class="hud-value" id="level">Lv.1</div>
                     </div>
                 </div>
+                <div class="hud-equip" title="当前装备">
+                    <span>🎣</span>
+                    <span id="equippedRod">🎋 竹竿</span>
+                </div>
+                <div class="hud-equip" title="当前鱼饵">
+                    <span>🪱</span>
+                    <span id="equippedBait">🪱 无鱼饵</span>
+                </div>
+                <div class="hud-equip" title="幸运值">
+                    <span>🍀</span>
+                    <span id="luckValue">—</span>
+                </div>
             </div>
 
             <!-- 经验条 -->
@@ -1108,9 +1379,30 @@
                 <div class="xp-fill" id="xpFill" style="width: 0%"></div>
             </div>
 
+            <!-- 抛竿等待UI -->
+            <div class="casting-ui" id="castingUI">
+                <div class="casting-content">
+                    <div class="casting-icon">🎣</div>
+                    <div class="casting-text">等待鱼上钩<span class="casting-dots">...</span></div>
+                    <div class="casting-hint">ESC 收竿</div>
+                </div>
+            </div>
+
+            <!-- 上钩提示UI -->
+            <div class="bite-alert-ui" id="biteAlertUI">
+                <div class="bite-alert-content">
+                    <div class="bite-alert-icon">🐟</div>
+                    <div class="bite-alert-text">⚠️ 鱼上钩了！</div>
+                    <div class="bite-alert-key">快按 <kbd>SPACE</kbd> 收竿！</div>
+                    <div class="bite-alert-bar-wrapper">
+                        <div class="bite-alert-bar" id="biteAlertBar"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 钓鱼小游戏UI -->
             <div class="fishing-ui" id="fishingUI">
-                <div class="fishing-header">🎣 有鱼上钩了！按住空格键控制！</div>
+                <div class="fishing-header">🎣 按住空格键控制！保持在绿色区域！</div>
                 <div class="fishing-container">
                     <div class="fishing-bar-wrapper">
                         <div class="fishing-bar">
@@ -1165,6 +1457,22 @@
                 </div>
             </div>
 
+            <!-- 商店 -->
+            <div class="shop-overlay" id="shopOverlay" onclick="if(event.target===this)closeShop()">
+                <div class="shop">
+                    <div class="shop-header">
+                        <div class="shop-title">🏪 钓鱼商店</div>
+                        <div class="shop-money">💰 <span id="shopMoney">0</span></div>
+                        <div class="close-btn" onclick="closeShop()">×</div>
+                    </div>
+                    <div class="shop-tabs">
+                        <div class="shop-tab active" id="shopTabBuy" onclick="switchShopTab('buy')">🛒 买入装备</div>
+                        <div class="shop-tab" id="shopTabSell" onclick="switchShopTab('sell')">💰 卖出鱼获</div>
+                    </div>
+                    <div class="shop-content" id="shopContent"></div>
+                </div>
+            </div>
+
             <!-- 通知容器 -->
             <div class="notification-container" id="notificationContainer"></div>
 
@@ -1175,29 +1483,65 @@
                     <div class="catch-fish" id="catchFishIcon">🐟</div>
                     <div class="catch-name" id="catchFishName">鲤鱼</div>
                     <div class="catch-rarity" id="catchFishRarity">⭐ 普通</div>
-                    <div class="catch-value">💰 +<span id="catchFishValue">10</span> 金币</div>
-                    <button class="catch-btn" onclick="closeCatchModal()">太棒了！</button>
+                    <div class="catch-value">💰 价值 <span id="catchFishValue">10</span> 金币（去商店卖出）</div>
+                    <button class="catch-btn" onclick="closeCatchModal()">太棒了</button>
                 </div>
             </div>
 
             <!-- 操作提示 -->
-            <div class="controls-hint">
-                <div class="controls-hint-title">🎮 操作指南</div>
+            <div class="controls-hint" id="controlsHint">
+                <div class="controls-hint-title">🎮 操作指南 <span style="font-size: 10px; color: #888;">(T关闭)</span></div>
                 <div class="control-item">
                     <span class="control-key">WASD</span>
                     <span class="control-desc">移动角色</span>
                 </div>
                 <div class="control-item">
+                    <span class="control-key">F</span>
+                    <span class="control-desc">放竿</span>
+                </div>
+                <div class="control-item">
                     <span class="control-key">SPACE</span>
-                    <span class="control-desc">互动/钓鱼</span>
+                    <span class="control-desc">起竿/收竿/NPC互动</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">E</span>
+                    <span class="control-desc">装备栏</span>
                 </div>
                 <div class="control-item">
                     <span class="control-key">B</span>
                     <span class="control-desc">打开背包</span>
                 </div>
                 <div class="control-item">
-                    <span class="control-key">M</span>
-                    <span class="control-desc">静音开关</span>
+                    <span class="control-key">Q</span>
+                    <span class="control-desc">任务菜单</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">T</span>
+                    <span class="control-desc">操作指南</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">ESC</span>
+                    <span class="control-desc">取消/关闭</span>
+                </div>
+            </div>
+
+            <!-- 任务追踪面板 -->
+            <div id="questTracker" style="position: absolute; top: 75px; left: 15px; z-index: 10;">
+                <div class="quest-panel" style="display: none;" id="questPanelContent">
+                    <!-- 任务内容由JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 装备界面 -->
+            <div class="equipment-overlay" id="equipmentOverlay" onclick="if(event.target===this)closeEquipment()">
+                <div class="equipment-panel">
+                    <div class="equipment-header">
+                        <div class="equipment-title">⚔️ 装备栏</div>
+                        <div class="close-btn" onclick="closeEquipment()">×</div>
+                    </div>
+                    <div class="equipment-content" id="equipmentContent">
+                        <!-- 装备内容由JS动态生成 -->
+                    </div>
                 </div>
             </div>
         </div>
