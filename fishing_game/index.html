@@ -3,1550 +3,1180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>像素钓鱼 - Pixel Fishing</title>
+    <title>悠钓物语 - Yuri Tsuri Monogatari</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --pixel-bg: #1a1a2e;
-            --pixel-accent: #FFD700;
-            --pixel-water: #4169E1;
-            --pixel-grass: #7CFC00;
-            --pixel-wood: #8B4513;
-            --pixel-red: #FF6B6B;
-            --pixel-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
-            min-height: 100vh;
+            background: #1a1a2e;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            font-family: monospace;
             overflow: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(65, 105, 225, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(124, 252, 0, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .game-container {
+        #game-container {
             position: relative;
-            box-shadow: 0 0 0 4px #333, 0 0 0 8px #666, 0 20px 60px rgba(0,0,0,0.8);
-            border-radius: 12px;
-            overflow: hidden;
-            background: #000;
+            border: 4px solid #4a4a6a;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(74, 144, 164, 0.3);
         }
 
-        #gameCanvas {
+        #game-canvas {
             display: block;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
-            background: #87CEEB;
+            width: 960px;
+            height: 540px;
         }
 
-        .ui-overlay {
+        #ui-overlay {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
         }
 
-        /* ========== 开始界面 ========== */
-        .start-screen {
+        .ui-panel {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(180deg, #1a1a3e 0%, #162050 50%, #0d1a33 100%);
+            background: rgba(20, 20, 40, 0.95);
+            border: 3px solid #6a6a9a;
+            padding: 15px;
+            pointer-events: auto;
+            display: none;
+        }
+
+        .ui-panel.active {
+            display: block;
+        }
+
+        #hud {
+            top: 10px;
+            left: 10px;
+            right: 10px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            z-index: 100;
+            background: rgba(20, 20, 40, 0.85);
+            border: 2px solid #5a5a8a;
+            padding: 8px 15px;
             pointer-events: auto;
-        }
-        .start-screen.hidden { display: none; }
-
-        .pixel-border {
-            position: absolute;
-            top: 20px; left: 20px; right: 20px; bottom: 20px;
-            border: 4px dashed rgba(255, 215, 0, 0.3);
-            pointer-events: none;
-        }
-
-        .title-container {
-            position: relative;
-            margin-bottom: 30px;
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .game-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 36px;
-            color: #FFD700;
-            text-shadow: 4px 4px 0 #8B4513, -2px -2px 0 #FFA500;
-            margin-bottom: 15px;
-            letter-spacing: 4px;
-            text-align: center;
-            animation: glow 2s ease-in-out infinite;
-        }
-        @keyframes glow {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); }
-        }
-
-        .game-title span {
-            display: inline-block;
-            animation: wave 1s ease-in-out infinite;
-        }
-        .game-title span:nth-child(1) { animation-delay: 0s; }
-        .game-title span:nth-child(2) { animation-delay: 0.1s; }
-        .game-title span:nth-child(3) { animation-delay: 0.2s; }
-        .game-title span:nth-child(4) { animation-delay: 0.3s; }
-        @keyframes wave {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .game-subtitle {
-            font-size: 14px;
-            color: #87CEEB;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            opacity: 0.8;
-            text-align: center;
-        }
-
-        .decoration-fish {
-            position: absolute;
-            font-size: 24px;
-            opacity: 0.3;
-            animation: swim 8s linear infinite;
-        }
-        .decoration-fish:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-        .decoration-fish:nth-child(2) { top: 60%; right: 15%; animation-delay: 3s; }
-        .decoration-fish:nth-child(3) { top: 80%; left: 20%; animation-delay: 6s; }
-        @keyframes swim {
-            0% { transform: translateX(-50px) scaleX(1); }
-            50% { transform: translateX(50px) scaleX(1); }
-            51% { transform: translateX(50px) scaleX(-1); }
-            100% { transform: translateX(-50px) scaleX(-1); }
-        }
-
-        .start-btn {
-            background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
-            color: #fff;
-            border: none;
-            padding: 18px 50px;
-            font-size: 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            box-shadow: 0 6px 0 #196619, 0 8px 20px rgba(0,0,0,0.3);
-            margin-top: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .start-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-        .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #196619, 0 12px 25px rgba(0,0,0,0.4); }
-        .start-btn:hover::before { left: 100%; }
-        .start-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #196619, 0 4px 10px rgba(0,0,0,0.3); }
-
-        .version-info {
-            position: absolute;
-            bottom: 30px;
-            color: rgba(255,255,255,0.4);
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-
-        /* ========== HUD 界面 ========== */
-        .hud {
-            position: absolute;
-            top: 15px; left: 15px;
-            display: flex;
-            gap: 12px;
-            pointer-events: auto;
-            flex-wrap: wrap;
-            max-width: 500px;
         }
 
         .hud-item {
-            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
-            border: 3px solid #FFD700;
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: #fff;
-            font-size: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-            min-width: 80px;
-            transition: transform 0.2s;
+            color: #e0e0e0;
+            font-size: 14px;
         }
-        .hud-item:hover { transform: scale(1.05); }
 
         .hud-icon {
-            width: 24px; height: 24px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 6px;
-        }
-        .hud-value {
-            font-weight: bold;
-            font-size: 14px;
-            color: #FFD700;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
-        }
-        .hud-label {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* 装备信息栏 */
-        .hud-equip {
-            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
-            border: 2px solid #87CEEB;
-            border-radius: 8px;
-            padding: 6px 12px;
-            color: #87CEEB;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .hud-equip-icon { font-size: 14px; }
-
-        /* 经验条 */
-        .xp-bar {
-            position: absolute;
-            top: 62px; left: 15px;
-            width: 200px; height: 8px;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid #666;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .xp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
-            border-radius: 2px;
-            transition: width 0.5s ease-out;
-            box-shadow: 0 0 10px rgba(255,215,0,0.5);
-        }
-
-        /* ========== 音频控制 ========== */
-        .audio-controls {
-            position: absolute;
-            top: 15px; right: 15px;
-            display: flex; gap: 10px;
-            z-index: 100;
-            pointer-events: auto;
-        }
-        .audio-btn {
-            width: 42px; height: 42px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
-            border: 3px solid #FFD700;
-            border-radius: 8px;
-            color: #FFD700;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-        }
-        .audio-btn:hover { transform: scale(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.5); }
-        .audio-btn.muted { opacity: 0.5; border-color: #666; color: #666; }
-
-        /* ========== 抛竿等待UI ========== */
-        .casting-ui {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        .casting-ui.active { display: flex; }
-
-        .casting-content {
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
-            border: 3px solid #4169E1;
-            border-radius: 12px;
-            padding: 25px 40px;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-        }
-
-        .casting-icon {
-            font-size: 48px;
-            animation: bobbing 1.5s ease-in-out infinite;
-        }
-        @keyframes bobbing {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-8px) rotate(5deg); }
-        }
-
-        .casting-text {
-            color: #87CEEB;
-            font-size: 16px;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .casting-dots {
-            display: inline-block;
-            animation: dots 1.5s steps(4) infinite;
-        }
-        @keyframes dots {
-            0% { content: ''; }
-            25% { content: '.'; }
-            50% { content: '..'; }
-            75% { content: '...'; }
-        }
-
-        .casting-hint {
-            color: #666;
-            font-size: 12px;
-            margin-top: 8px;
-        }
-
-        /* ========== 上钩提示UI ========== */
-        .bite-alert-ui {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            z-index: 150;
-        }
-        .bite-alert-ui.active {
-            display: flex;
-            animation: alertShake 0.1s ease-in-out infinite;
-        }
-        @keyframes alertShake {
-            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
-            25% { transform: translate(-50%, -50%) translateX(-3px); }
-            75% { transform: translate(-50%, -50%) translateX(3px); }
-        }
-
-        .bite-alert-content {
-            background: linear-gradient(180deg, rgba(180,0,0,0.95) 0%, rgba(120,0,0,0.98) 100%);
-            border: 4px solid #FF4444;
-            border-radius: 16px;
-            padding: 30px 50px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(255,0,0,0.5), 0 0 80px rgba(255,0,0,0.2);
-            animation: alertPulse 0.5s ease-in-out infinite;
-        }
-        @keyframes alertPulse {
-            0%, 100% { box-shadow: 0 0 40px rgba(255,0,0,0.5); }
-            50% { box-shadow: 0 0 60px rgba(255,0,0,0.8), 0 0 100px rgba(255,0,0,0.3); }
-        }
-
-        .bite-alert-icon {
-            font-size: 56px;
-            animation: fishWiggle 0.3s ease-in-out infinite;
-        }
-        @keyframes fishWiggle {
-            0%, 100% { transform: rotate(-10deg) scale(1); }
-            50% { transform: rotate(10deg) scale(1.1); }
-        }
-
-        .bite-alert-text {
-            color: #FFD700;
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-            margin-top: 10px;
-            animation: textFlash 0.5s ease-in-out infinite;
-        }
-        @keyframes textFlash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .bite-alert-key {
-            color: #FFF;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        .bite-alert-key kbd {
-            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
-            color: #000;
-            padding: 4px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 18px;
-            box-shadow: 0 3px 0 #8B4513;
-            animation: keyPulse 0.8s ease-in-out infinite;
-            text-transform: uppercase;
-        }
-        @keyframes keyPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* 限时进度条 */
-        .bite-alert-bar-wrapper {
-            width: 200px;
-            height: 10px;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid #666;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 12px;
-        }
-        .bite-alert-bar {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #FF4444 0%, #FFD700 50%, #32CD32 100%);
+            width: 20px;
+            height: 20px;
             border-radius: 3px;
-            transition: width 0.1s linear;
         }
 
-        /* ========== 钓鱼小游戏 UI ========== */
-        .fishing-ui {
-            position: absolute;
-            top: 50%; left: 50%;
+        .gold-icon { background: #ffd700; }
+        .exp-icon { background: #9b59b6; }
+        .level-icon { background: #3498db; }
+        .stamina-icon { background: #e74c3c; }
+
+        #shop-panel {
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-        .fishing-ui.active { display: flex; }
-
-        .fishing-header {
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
-            border: 3px solid #FFD700;
-            border-radius: 10px;
-            padding: 15px 30px;
-            color: #FFD700;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            width: 420px;
+            max-height: 80%;
+            overflow-y: auto;
         }
 
-        .fishing-container {
-            display: flex;
-            gap: 30px;
-            align-items: center;
+        #inventory-panel {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            max-height: 80%;
+            overflow-y: auto;
         }
 
-        .fishing-bar-wrapper {
-            position: relative;
-            padding: 8px;
-            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a3a 100%);
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.1);
-        }
-
-        .fishing-bar {
-            width: 40px; height: 320px;
-            background: linear-gradient(180deg, #ff4444 0%, #ff6666 30%, #90EE90 70%, #32CD32 100%);
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
-        }
-
-        .fishing-zone {
-            position: absolute;
-            width: 100%;
-            background: linear-gradient(to bottom, #90EE90, #32CD32, #90EE90);
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(50,205,50,0.8), inset 0 0 10px rgba(255,255,255,0.3);
-            border: 2px solid #228B22;
-        }
-
-        .fishing-cursor {
-            position: absolute;
-            width: calc(100% + 8px);
-            height: 34px;
-            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
-            border: 3px solid #fff;
-            border-radius: 8px;
-            left: -4px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.5);
-            transition: top 0.08s;
-        }
-        .fishing-cursor::before {
-            content: '🐟';
-            position: absolute;
-            left: -25px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-        }
-
-        .fishing-info {
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
-            border: 3px solid #666;
-            border-radius: 10px;
-            padding: 20px;
-            color: #fff;
-            min-width: 150px;
-        }
-
-        .fishing-info-title {
-            color: #87CEEB;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .progress-display {
-            font-size: 32px;
-            font-weight: bold;
+        .panel-title {
+            font-size: 20px;
+            color: #ffd700;
             text-align: center;
             margin-bottom: 15px;
+            text-shadow: 2px 2px #000;
         }
-        .progress-display.success { color: #32CD32; }
-        .progress-display.warning { color: #FFD700; }
-        .progress-display.danger { color: #FF6B6B; }
-
-        .fishing-hint {
-            font-size: 12px;
-            color: #888;
-            text-align: center;
-            line-height: 1.6;
-        }
-        .fishing-hint kbd {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #FFD700;
-        }
-
-        /* ========== 对话框 ========== */
-        .dialog-box {
-            position: absolute;
-            bottom: 30px; left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 700px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.98) 100%);
-            border: 4px solid #FFD700;
-            border-radius: 12px;
-            padding: 25px;
-            color: #fff;
-            display: none;
-            pointer-events: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
-        .dialog-box.active {
-            display: block;
-            animation: dialogSlideUp 0.3s ease-out;
-        }
-        @keyframes dialogSlideUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-
-        .dialog-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255,215,0,0.3);
-        }
-        .dialog-avatar {
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, #4169E1 0%, #228B22 100%);
-            border-radius: 10px;
-            border: 3px solid #FFD700;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px;
-        }
-        .dialog-title { color: #FFD700; font-weight: bold; font-size: 18px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
-        .dialog-text { color: #fff; font-size: 16px; line-height: 1.8; padding-left: 5px; }
-        .dialog-close-hint { position: absolute; bottom: 10px; right: 15px; font-size: 11px; color: #666; }
-
-        /* ========== 背包界面 ========== */
-        .inventory-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
-        }
-        .inventory-overlay.active { display: flex; justify-content: center; align-items: center; }
-
-        .inventory {
-            width: 500px;
-            max-height: 500px;
-            background: linear-gradient(180deg, rgba(10,10,30,0.98) 0%, rgba(20,20,50,0.99) 100%);
-            border: 4px solid #FFD700;
-            border-radius: 12px;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            overflow: hidden;
-        }
-
-        .inventory-header {
-            background: linear-gradient(90deg, #2a2a5a 0%, #3a3a6a 100%);
-            padding: 20px;
-            border-bottom: 3px solid #FFD700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .inventory-title { color: #FFD700; font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .close-btn {
-            color: #FF6B6B; font-size: 28px; cursor: pointer;
-            width: 36px; height: 36px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s;
-            background: rgba(255,107,107,0.1);
-        }
-        .close-btn:hover { background: rgba(255,107,107,0.3); transform: scale(1.1); }
-
-        .inventory-stats {
-            display: flex; gap: 20px;
-            padding: 15px 20px;
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,215,0,0.2);
-        }
-        .stat-item { display: flex; align-items: center; gap: 8px; color: #87CEEB; font-size: 13px; }
-        .stat-value { color: #FFD700; font-weight: bold; font-size: 16px; }
-
-        .fish-list { max-height: 300px; overflow-y: auto; padding: 15px; }
-        .fish-list::-webkit-scrollbar { width: 8px; }
-        .fish-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-        .fish-list::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
-
-        .fish-item {
-            display: flex; align-items: center;
-            padding: 15px; margin-bottom: 10px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .fish-item:hover {
-            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
-            border-color: rgba(255,215,0,0.5);
-            transform: translateX(5px);
-        }
-        .fish-item:last-child { margin-bottom: 0; }
-
-        .fish-icon-wrapper {
-            width: 50px; height: 50px;
-            margin-right: 15px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-        .fish-info { flex: 1; }
-        .fish-name { font-weight: bold; font-size: 16px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .fish-rarity { font-size: 11px; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        .fish-rarity.common { background: rgba(144,238,144,0.2); color: #90EE90; }
-        .fish-rarity.uncommon { background: rgba(135,206,235,0.2); color: #87CEEB; }
-        .fish-rarity.rare { background: rgba(255,215,0,0.2); color: #FFD700; }
-        .fish-rarity.legendary { background: linear-gradient(90deg, rgba(255,0,255,0.3) 0%, rgba(255,215,0,0.3) 100%); color: #FF00FF; font-weight: bold; }
-        .fish-value { color: #FFD700; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
-        .fish-count { background: rgba(255,215,0,0.2); color: #FFD700; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; }
-
-        .empty-inventory { text-align: center; padding: 40px; color: #666; font-size: 16px; }
-        .empty-inventory-icon { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
-
-        /* ========== 商店界面 ========== */
-        .shop-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
-            z-index: 50;
-        }
-        .shop-overlay.active { display: flex; justify-content: center; align-items: center; }
-
-        .shop {
-            width: 600px;
-            max-height: 550px;
-            background: linear-gradient(180deg, rgba(10,10,30,0.98) 0%, rgba(20,20,50,0.99) 100%);
-            border: 4px solid #FFD700;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,0.1);
-            overflow: hidden;
-        }
-
-        .shop-header {
-            background: linear-gradient(90deg, #2a2a5a 0%, #3a3a6a 100%);
-            padding: 18px 20px;
-            border-bottom: 3px solid #FFD700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .shop-title { color: #FFD700; font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .shop-money { color: #FFD700; font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
 
         .shop-tabs {
             display: flex;
-            border-bottom: 2px solid rgba(255,215,0,0.3);
+            gap: 5px;
+            margin-bottom: 15px;
         }
+
         .shop-tab {
             flex: 1;
-            padding: 12px;
-            text-align: center;
-            color: #888;
-            font-weight: bold;
-            font-size: 15px;
+            padding: 8px;
+            background: #3a3a5a;
+            border: 2px solid #5a5a8a;
+            color: #b0b0c0;
             cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 3px solid transparent;
-            background: rgba(0,0,0,0.3);
+            text-align: center;
+            font-size: 13px;
         }
-        .shop-tab:hover { color: #FFD700; background: rgba(255,215,0,0.05); }
+
         .shop-tab.active {
-            color: #FFD700;
-            border-bottom-color: #FFD700;
-            background: rgba(255,215,0,0.1);
-        }
-
-        .shop-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            max-height: 380px;
-        }
-        .shop-content::-webkit-scrollbar { width: 8px; }
-        .shop-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-        .shop-content::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
-
-        .shop-section { margin-bottom: 20px; }
-        .shop-section:last-child { margin-bottom: 0; }
-        .shop-section-title {
-            color: #87CEEB;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(135,206,235,0.3);
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            background: #5a5a8a;
+            color: #fff;
         }
 
         .shop-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            margin-bottom: 8px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            transition: all 0.2s;
+            padding: 10px;
+            margin: 5px 0;
+            background: #2a2a4a;
+            border: 2px solid #4a4a6a;
+            cursor: pointer;
         }
+
         .shop-item:hover {
-            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
-            border-color: rgba(255,215,0,0.3);
-        }
-        .shop-item.equipped { border-color: rgba(50,205,50,0.5); background: rgba(50,205,50,0.05); }
-        .shop-item.owned { border-color: rgba(135,206,235,0.3); }
-        .shop-item:last-child { margin-bottom: 0; }
-
-        .shop-item-icon {
-            width: 48px; height: 48px;
-            margin-right: 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            flex-shrink: 0;
+            background: #3a3a6a;
+            border-color: #7a7aaa;
         }
 
-        .shop-item-info { flex: 1; min-width: 0; }
-        .shop-item-name {
-            color: #fff;
-            font-weight: bold;
-            font-size: 15px;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .equipped-badge {
-            background: rgba(50,205,50,0.3);
-            color: #32CD32;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: normal;
-        }
-
-        .shop-item-desc { color: #888; font-size: 12px; margin-bottom: 4px; }
-
-        .shop-item-stats { display: flex; gap: 6px; flex-wrap: wrap; }
-        .stat-tag {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        .stat-tag.rare { background: rgba(255,215,0,0.2); color: #FFD700; }
-        .stat-tag.legend { background: rgba(255,0,255,0.2); color: #FF00FF; }
-        .stat-tag.zone { background: rgba(50,205,50,0.2); color: #32CD32; }
-        .stat-tag.progress { background: rgba(135,206,235,0.2); color: #87CEEB; }
-        .stat-tag.bite { background: rgba(255,165,0,0.2); color: #FFA500; }
-
-        .shop-item-action {
-            margin-left: 10px;
-            flex-shrink: 0;
-            display: flex;
-            gap: 6px;
-        }
-
-        .shop-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        .buy-btn {
-            background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
-            color: #fff;
-            box-shadow: 0 3px 0 #196619;
-        }
-        .buy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #196619; }
-        .buy-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #196619; }
-        .buy-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        .sell-btn {
-            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
-            color: #000;
-            box-shadow: 0 3px 0 #8B4513;
-        }
-        .sell-btn:hover { transform: translateY(-1px); }
-
-        .sell-all-btn {
-            background: linear-gradient(180deg, #FF6B6B 0%, #DC143C 100%);
-            color: #fff;
-            padding: 6px 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            box-shadow: 0 3px 0 #8B0000;
-        }
-        .sell-all-btn:hover { transform: translateY(-1px); }
-
-        .equip-btn {
-            background: linear-gradient(180deg, #4169E1 0%, #2a4ab5 100%);
-            color: #fff;
-            box-shadow: 0 3px 0 #1a2a85;
-        }
-        .equip-btn:hover { transform: translateY(-1px); }
-
-        .equipped-btn {
-            background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
-            color: #fff;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .disabled-btn {
-            background: #333;
-            color: #666;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-        }
-
-        .sell-item .shop-item-icon {
-            background: transparent;
-        }
-
-        .shop-sell-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: rgba(255,215,0,0.05);
-            border: 2px solid rgba(255,215,0,0.2);
-            border-radius: 10px;
-            margin-bottom: 15px;
-            color: #FFD700;
-            font-size: 14px;
-            gap: 15px;
-        }
-
-        /* ========== 通知系统 ========== */
-        .notification-container {
-            position: absolute;
-            top: 90px; left: 50%;
-            transform: translateX(-50%);
+        .item-info {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-            z-index: 200;
-        }
-        .notification {
-            background: linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(30,30,60,0.98) 100%);
-            border: 3px solid;
-            border-radius: 10px;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s ease-out;
-            white-space: nowrap;
-        }
-        .notification.show { opacity: 1; transform: translateY(0); }
-        .notification.success { border-color: #32CD32; color: #32CD32; }
-        .notification.warning { border-color: #FFD700; color: #FFD700; }
-        .notification.error { border-color: #FF6B6B; color: #FF6B6B; }
-        .notification.info { border-color: #87CEEB; color: #87CEEB; }
-        .notification-icon { font-size: 24px; }
-
-        /* ========== 操作提示 ========== */
-        .controls-hint {
-            position: absolute;
-            bottom: 15px; right: 15px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(20,20,40,0.9) 100%);
-            border: 2px solid #666;
-            border-radius: 10px;
-            padding: 12px;
-            color: #fff;
-            font-size: 11px;
-            line-height: 2;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transition: opacity 0.3s ease;
-        }
-        .controls-hint-title {
-            color: #FFD700;
-            font-weight: bold;
-            margin-bottom: 6px;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .control-item { display: flex; align-items: center; gap: 8px; }
-        .control-key {
-            background: linear-gradient(180deg, #444 0%, #333 100%);
-            border: 2px solid #666;
-            border-radius: 6px;
-            padding: 2px 8px;
-            font-family: monospace;
-            font-weight: bold;
-            color: #FFD700;
-            min-width: 50px;
-            text-align: center;
-            font-size: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .control-desc { color: #aaa; }
-
-        /* ========== 装备界面样式 ========== */
-        .equipment-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
-            z-index: 50;
-        }
-        .equipment-overlay.active { display: flex; justify-content: center; align-items: center; }
-
-        .equipment-panel {
-            width: 650px;
-            max-height: 550px;
-            background: linear-gradient(180deg, rgba(10,10,30,0.98) 0%, rgba(20,20,50,0.99) 100%);
-            border: 4px solid #FFD700;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,0.1);
-            overflow: hidden;
+            gap: 3px;
         }
 
-        .equipment-header {
-            background: linear-gradient(90deg, #2a2a5a 0%, #3a3a6a 100%);
-            padding: 18px 20px;
-            border-bottom: 3px solid #FFD700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .equipment-title { color: #FFD700; font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-
-        .equipment-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            max-height: 450px;
-        }
-        .equipment-content::-webkit-scrollbar { width: 8px; }
-        .equipment-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-        .equipment-content::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
-
-        .equipment-overview {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(255,215,0,0.05);
-            border: 2px solid rgba(255,215,0,0.2);
-            border-radius: 10px;
-        }
-
-        .equip-slot {
-            flex: 1;
-            background: rgba(0,0,0,0.3);
-            border: 2px solid #666;
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        .equip-slot.equipped {
-            border-color: #32CD32;
-            background: rgba(50,205,50,0.1);
-        }
-        .equip-label {
-            color: #888;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        .equip-icon {
-            font-size: 32px;
-            margin-bottom: 5px;
-        }
-        .equip-name {
-            color: #fff;
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .equip-bonus {
-            color: #32CD32;
-            font-size: 11px;
-            margin-top: 5px;
-        }
-
-        .equip-section { margin-bottom: 20px; }
-        .equip-section:last-child { margin-bottom: 0; }
-        .equip-section-title {
-            color: #87CEEB;
+        .item-name {
+            color: #e0e0e0;
             font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(135,206,235,0.3);
-            letter-spacing: 2px;
-            text-transform: uppercase;
         }
 
-        .equip-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+        .item-desc {
+            color: #9090a0;
+            font-size: 11px;
         }
 
-        .equip-card {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 12px;
+        .item-price {
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .item-quantity {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 25px;
+            height: 25px;
+            background: #e74c3c;
+            border: 2px solid #c0392b;
+            color: #fff;
             cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
+            font-size: 14px;
+            line-height: 20px;
+            text-align: center;
         }
-        .equip-card:hover {
-            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
-            border-color: rgba(255,215,0,0.3);
+
+        .close-btn:hover {
+            background: #c0392b;
         }
-        .equip-card.active {
-            border-color: #32CD32;
-            background: rgba(50,205,50,0.1);
+
+        .btn {
+            padding: 10px 20px;
+            background: #3498db;
+            border: 2px solid #2980b9;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
         }
-        .equip-card.locked {
-            opacity: 0.5;
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn:disabled {
+            background: #555;
+            border-color: #444;
             cursor: not-allowed;
         }
-        .equip-card-icon {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-        .equip-card-name {
-            color: #fff;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .equip-card-desc {
-            color: #888;
-            font-size: 11px;
-        }
-        .equip-card-locked {
-            position: absolute;
-            top: 50%; left: 50%;
+
+        #fishing-game {
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: #FFD700;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-        }
-        .equip-card-status {
-            position: absolute;
-            top: 5px; right: 5px;
-            color: #32CD32;
-            font-size: 10px;
-        }
-
-        /* ========== 任务面板样式 ========== */
-        .quest-panel {
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.95) 100%);
-            border: 3px solid #FFD700;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .quest-header {
-            color: #FFD700;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(255,215,0,0.3);
+            width: 350px;
             text-align: center;
         }
-        .quest-item {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            transition: all 0.2s;
+
+        #fishing-indicator {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            border: 4px solid #fff;
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, #2a2a4a 0%, #1a1a2e 100%);
         }
-        .quest-item:hover {
-            background: rgba(255,255,255,0.08);
+
+        #fishing-power {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 70px;
+            background: linear-gradient(to top, #e74c3c, #2ecc71);
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%) rotate(0deg);
         }
-        .quest-item.completed {
-            border-color: rgba(50,205,50,0.5);
-            background: rgba(50,205,50,0.1);
+
+        #fishing-target {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: #2ecc71;
+            border: 3px solid #27ae60;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
         }
-        .quest-item.in-progress {
-            border-color: rgba(255,215,0,0.3);
-        }
-        .quest-name {
-            color: #FFD700;
-            font-weight: bold;
+
+        .fishing-hint {
+            color: #fff;
             font-size: 16px;
-            margin-bottom: 8px;
-        }
-        .quest-desc {
-            color: #CCC;
-            font-size: 13px;
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
-        .quest-progress {
-            color: #87CEEB;
-            font-size: 14px;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        .quest-reward {
-            color: #32CD32;
-            font-size: 13px;
-            padding: 5px 10px;
-            background: rgba(50,205,50,0.1);
-            border-radius: 6px;
-            display: inline-block;
-        }
-        .quest-empty {
-            text-align: center;
-            color: #888;
-            padding: 30px;
-            font-size: 14px;
+            margin-top: 15px;
         }
 
-        /* ========== 获得物品弹窗 ========== */
-        .catch-modal {
+        .fishing-score {
+            font-size: 24px;
+            color: #ffd700;
+            margin: 10px 0;
+        }
+
+        #notification {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-            pointer-events: auto;
-        }
-        .catch-modal.active { display: flex; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .catch-content {
-            background: linear-gradient(180deg, #2a2a5a 0%, #1a1a3a 100%);
-            border: 4px solid #FFD700;
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            animation: catchBounce 0.5s ease-out;
-        }
-        @keyframes catchBounce {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .catch-title { font-size: 28px; color: #FFD700; margin-bottom: 20px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
-        .catch-fish { font-size: 80px; margin: 20px 0; animation: fishWiggle2 0.5s ease-in-out infinite; }
-        @keyframes fishWiggle2 {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-        .catch-name { font-size: 24px; color: #fff; margin-bottom: 10px; }
-        .catch-rarity { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; }
-        .catch-rarity.common { background: rgba(144,238,144,0.2); color: #90EE90; }
-        .catch-rarity.uncommon { background: rgba(135,206,235,0.2); color: #87CEEB; }
-        .catch-rarity.rare { background: rgba(255,215,0,0.2); color: #FFD700; }
-        .catch-rarity.legendary { background: rgba(255,0,255,0.2); color: #FF00FF; }
-        .catch-value { font-size: 20px; color: #FFD700; margin-bottom: 25px; }
-        .catch-btn {
-            background: linear-gradient(180deg, #32CD32 0%, #228B22 100%);
-            color: #fff; border: none;
-            padding: 12px 40px; font-size: 16px;
-            border-radius: 8px; cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 0 #196619;
-            transition: all 0.2s;
-        }
-        .catch-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #196619; }
-        .catch-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #196619; }
-
-        /* ========== 浮动文字效果 ========== */
-        .floating-text {
-            position: absolute;
-            font-weight: bold;
-            font-size: 20px;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 3px 3px #000, -1px -1px #000;
+            opacity: 0;
+            transition: opacity 0.2s;
             pointer-events: none;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-            animation: floatUp 1.5s ease-out forwards;
         }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-50px) scale(0.8); }
-        }
-        .floating-text.gold { color: #FFD700; }
-        .floating-text.exp { color: #87CEEB; }
-        .floating-text.health { color: #FF6B6B; }
 
-        /* ========== 响应式 ========== */
-        @media (max-width: 850px) { .game-container { transform: scale(0.9); } }
-        @media (max-width: 750px) { .game-container { transform: scale(0.8); } }
+        #notification.show {
+            opacity: 1;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .game-tip {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .inv-slot {
+            width: 50px;
+            height: 50px;
+            background: #2a2a4a;
+            border: 2px solid #4a4a6a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #b0b0c0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .inv-slot:hover {
+            border-color: #8a8aaa;
+            background: #3a3a6a;
+        }
+
+        .inv-count {
+            position: absolute;
+            bottom: 2px;
+            right: 3px;
+            font-size: 10px;
+            color: #ffd700;
+        }
+
+        .shop-btn-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-        
-        <!-- 开始界面 -->
-        <div class="start-screen" id="startScreen">
-            <div class="pixel-border"></div>
-            <div class="decoration-fish">🐟</div>
-            <div class="decoration-fish">🐠</div>
-            <div class="decoration-fish">🎣</div>
-            
-            <div class="title-container">
-                <h1 class="game-title">
-                    <span>🎣</span><span>像</span><span>素</span><span>钓</span><span>鱼</span>
-                </h1>
-                <p class="game-subtitle">Pixel Fishing Adventure</p>
-            </div>
-            
-            <button class="start-btn" onclick="startGame()">▶ 开始游戏</button>
-            <div class="version-info">v2.0.0 • 商店版</div>
-        </div>
-
-        <!-- UI 层 -->
-        <div class="ui-overlay">
-            <!-- 音频控制 -->
-            <div class="audio-controls">
-                <button class="audio-btn" id="bgmBtn" onclick="toggleBGM()" title="背景音乐">🎵</button>
-                <button class="audio-btn" id="sfxBtn" onclick="toggleSFX()" title="音效">🔊</button>
-                <button class="audio-btn" id="muteBtn" onclick="toggleMute()" title="静音">🔔</button>
-            </div>
-
-            <!-- HUD -->
-            <div class="hud">
-                <div class="hud-item" title="背包中的鱼">
-                    <div class="hud-icon">🎒</div>
-                    <div>
-                        <div class="hud-label">背包</div>
-                        <div class="hud-value" id="fishCount">0</div>
-                    </div>
+    <div id="game-container">
+        <canvas id="game-canvas" width="960" height="540"></canvas>
+        <div id="ui-overlay">
+            <div id="hud">
+                <div class="hud-item">
+                    <div class="hud-icon gold-icon"></div>
+                    <span id="gold-display">100</span>
                 </div>
-                <div class="hud-item" title="当前金币">
-                    <div class="hud-icon">💰</div>
-                    <div>
-                        <div class="hud-label">金币</div>
-                        <div class="hud-value" id="money">50</div>
-                    </div>
+                <div class="hud-item">
+                    <div class="hud-icon level-icon"></div>
+                    <span>Lv.<span id="level-display">1</span></span>
                 </div>
-                <div class="hud-item" title="当前等级">
-                    <div class="hud-icon">⭐</div>
-                    <div>
-                        <div class="hud-label">等级</div>
-                        <div class="hud-value" id="level">Lv.1</div>
-                    </div>
+                <div class="hud-item">
+                    <div class="hud-icon exp-icon"></div>
+                    <span><span id="exp-display">0</span>/<span id="exp-max-display">100</span></span>
                 </div>
-                <div class="hud-equip" title="当前装备">
-                    <span>🎣</span>
-                    <span id="equippedRod">🎋 竹竿</span>
+                <div class="hud-item">
+                    <div class="hud-icon stamina-icon"></div>
+                    <span><span id="stamina-display">100</span></span>
                 </div>
-                <div class="hud-equip" title="当前鱼饵">
-                    <span>🪱</span>
-                    <span id="equippedBait">🪱 无鱼饵</span>
-                </div>
-                <div class="hud-equip" title="幸运值">
-                    <span>🍀</span>
-                    <span id="luckValue">—</span>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn" onclick="openShop()" style="padding:5px 12px;font-size:12px;">商店 [E]</button>
+                    <button class="btn" onclick="openInventory()" style="padding:5px 12px;font-size:12px;">背包 [I]</button>
                 </div>
             </div>
 
-            <!-- 经验条 -->
-            <div class="xp-bar" title="升级进度">
-                <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+            <div id="notification"></div>
+
+            <div id="shop-panel" class="ui-panel">
+                <div class="close-btn" onclick="closeShop()">X</div>
+                <div class="panel-title">杂货商店</div>
+                <div class="shop-tabs">
+                    <div class="shop-tab active" onclick="setShopTab('buy')">购买</div>
+                    <div class="shop-tab" onclick="setShopTab('sell')">出售</div>
+                </div>
+                <div id="shop-items"></div>
             </div>
 
-            <!-- 抛竿等待UI -->
-            <div class="casting-ui" id="castingUI">
-                <div class="casting-content">
-                    <div class="casting-icon">🎣</div>
-                    <div class="casting-text">等待鱼上钩<span class="casting-dots">...</span></div>
-                    <div class="casting-hint">ESC 收竿</div>
-                </div>
+            <div id="inventory-panel" class="ui-panel">
+                <div class="close-btn" onclick="closeInventory()">X</div>
+                <div class="panel-title">背包</div>
+                <div class="inventory-grid" id="inv-grid"></div>
+                <div id="inv-details" style="margin-top:15px;color:#b0b0c0;font-size:13px;"></div>
             </div>
 
-            <!-- 上钩提示UI -->
-            <div class="bite-alert-ui" id="biteAlertUI">
-                <div class="bite-alert-content">
-                    <div class="bite-alert-icon">🐟</div>
-                    <div class="bite-alert-text">⚠️ 鱼上钩了！</div>
-                    <div class="bite-alert-key">快按 <kbd>SPACE</kbd> 收竿！</div>
-                    <div class="bite-alert-bar-wrapper">
-                        <div class="bite-alert-bar" id="biteAlertBar"></div>
-                    </div>
+            <div id="fishing-game" class="ui-panel">
+                <div class="panel-title">钓鱼小游戏!</div>
+                <div id="fishing-indicator">
+                    <div id="fishing-target"></div>
+                    <div id="fishing-power"></div>
                 </div>
+                <div class="fishing-hint">按 [空格] 停止!</div>
+                <div class="fishing-score" id="fishing-score"></div>
+                <button class="btn" id="fishing-cancel" onclick="cancelFishing()">取消</button>
             </div>
 
-            <!-- 钓鱼小游戏UI -->
-            <div class="fishing-ui" id="fishingUI">
-                <div class="fishing-header">🎣 按住空格键控制！保持在绿色区域！</div>
-                <div class="fishing-container">
-                    <div class="fishing-bar-wrapper">
-                        <div class="fishing-bar">
-                            <div class="fishing-zone" id="fishingZone"></div>
-                            <div class="fishing-cursor" id="fishingCursor"></div>
-                        </div>
-                    </div>
-                    <div class="fishing-info">
-                        <div class="fishing-info-title">捕捉进度</div>
-                        <div class="progress-display" id="progressDisplay">30%</div>
-                        <div class="fishing-hint">
-                            按住 <kbd>SPACE</kbd><br>
-                            保持在绿色区域<br>
-                            填满进度条即可捕获！
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 对话框 -->
-            <div class="dialog-box" id="dialogBox">
-                <div class="dialog-header">
-                    <div class="dialog-avatar" id="dialogAvatar">🎣</div>
-                    <div class="dialog-title" id="dialogTitle">提示</div>
-                </div>
-                <div class="dialog-text" id="dialogText"></div>
-                <div class="dialog-close-hint">按任意键继续...</div>
-            </div>
-
-            <!-- 背包 -->
-            <div class="inventory-overlay" id="inventoryOverlay" onclick="if(event.target===this)closeInventory()">
-                <div class="inventory" id="inventory">
-                    <div class="inventory-header">
-                        <div class="inventory-title">🎒 我的收获</div>
-                        <div class="close-btn" onclick="closeInventory()">×</div>
-                    </div>
-                    <div class="inventory-stats">
-                        <div class="stat-item">
-                            <span>🐟 种类:</span>
-                            <span class="stat-value" id="fishTypes">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>📦 总数:</span>
-                            <span class="stat-value" id="totalFish">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>💎 总价值:</span>
-                            <span class="stat-value" id="totalValue">0</span>
-                        </div>
-                    </div>
-                    <div class="fish-list" id="fishList"></div>
-                </div>
-            </div>
-
-            <!-- 商店 -->
-            <div class="shop-overlay" id="shopOverlay" onclick="if(event.target===this)closeShop()">
-                <div class="shop">
-                    <div class="shop-header">
-                        <div class="shop-title">🏪 钓鱼商店</div>
-                        <div class="shop-money">💰 <span id="shopMoney">0</span></div>
-                        <div class="close-btn" onclick="closeShop()">×</div>
-                    </div>
-                    <div class="shop-tabs">
-                        <div class="shop-tab active" id="shopTabBuy" onclick="switchShopTab('buy')">🛒 买入装备</div>
-                        <div class="shop-tab" id="shopTabSell" onclick="switchShopTab('sell')">💰 卖出鱼获</div>
-                    </div>
-                    <div class="shop-content" id="shopContent"></div>
-                </div>
-            </div>
-
-            <!-- 通知容器 -->
-            <div class="notification-container" id="notificationContainer"></div>
-
-            <!-- 获得物品弹窗 -->
-            <div class="catch-modal" id="catchModal">
-                <div class="catch-content">
-                    <div class="catch-title">🎉 钓到鱼了！</div>
-                    <div class="catch-fish" id="catchFishIcon">🐟</div>
-                    <div class="catch-name" id="catchFishName">鲤鱼</div>
-                    <div class="catch-rarity" id="catchFishRarity">⭐ 普通</div>
-                    <div class="catch-value">💰 价值 <span id="catchFishValue">10</span> 金币（去商店卖出）</div>
-                    <button class="catch-btn" onclick="closeCatchModal()">太棒了</button>
-                </div>
-            </div>
-
-            <!-- 操作提示 -->
-            <div class="controls-hint" id="controlsHint">
-                <div class="controls-hint-title">🎮 操作指南 <span style="font-size: 10px; color: #888;">(T关闭)</span></div>
-                <div class="control-item">
-                    <span class="control-key">WASD</span>
-                    <span class="control-desc">移动角色</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">F</span>
-                    <span class="control-desc">放竿</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">SPACE</span>
-                    <span class="control-desc">起竿/收竿/NPC互动</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">E</span>
-                    <span class="control-desc">装备栏</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">B</span>
-                    <span class="control-desc">打开背包</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">Q</span>
-                    <span class="control-desc">任务菜单</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">T</span>
-                    <span class="control-desc">操作指南</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-key">ESC</span>
-                    <span class="control-desc">取消/关闭</span>
-                </div>
-            </div>
-
-            <!-- 任务追踪面板 -->
-            <div id="questTracker" style="position: absolute; top: 75px; left: 15px; z-index: 10;">
-                <div class="quest-panel" style="display: none;" id="questPanelContent">
-                    <!-- 任务内容由JS动态生成 -->
-                </div>
-            </div>
-
-            <!-- 装备界面 -->
-            <div class="equipment-overlay" id="equipmentOverlay" onclick="if(event.target===this)closeEquipment()">
-                <div class="equipment-panel">
-                    <div class="equipment-header">
-                        <div class="equipment-title">⚔️ 装备栏</div>
-                        <div class="close-btn" onclick="closeEquipment()">×</div>
-                    </div>
-                    <div class="equipment-content" id="equipmentContent">
-                        <!-- 装备内容由JS动态生成 -->
-                    </div>
-                </div>
-            </div>
+            <div id="game-tip" class="game-tip" style="display:none;"></div>
         </div>
     </div>
 
-    <script src="game.js"></script>
+<script>
+// ==================== GAME CONSTANTS ====================
+const PIXEL_SIZE = 3;
+const SCALE = 1;
+const CANVAS_W = 320;
+const CANVAS_H = 180;
+
+// Colors
+const COLORS = {
+    sky: '#87ceeb',
+    grass1: '#4a7c59',
+    grass2: '#8fbc8f',
+    grass3: '#3d6b4a',
+    water1: '#4a90a4',
+    water2: '#6bb3c9',
+    water3: '#3a7a94',
+    sand: '#c9a66b',
+    wood1: '#8b7355',
+    wood2: '#d4a574',
+    roof: '#a0522d',
+    door: '#654321',
+    path: '#b8a080',
+    player: '#e74c3c',
+    playerHair: '#2c1810',
+    playerShirt: '#3498db',
+    playerPants: '#34495e',
+    fish: '#f39c12',
+    npc: '#9b59b6',
+    npcSkin: '#deb887'
+};
+
+// ==================== GAME STATE ====================
+const gameState = {
+    player: {
+        x: 80,
+        y: 100,
+        dir: 1,
+        frame: 0,
+        moving: false,
+        action: 'idle'
+    },
+    gold: 100,
+    level: 1,
+    exp: 0,
+    expToLevel: 100,
+    stamina: 100,
+    maxStamina: 100,
+    inventory: [],
+    fishingState: 'none',
+    fishingTimer: 0,
+    hookTimer: 0,
+    inMiniGame: false,
+    miniGamePower: 0,
+    miniGameDir: 1,
+    miniGameTarget: 0,
+    miniGameSuccess: false,
+    shopOpen: false,
+    shopTab: 'buy',
+    inventoryOpen: false,
+    selectedInvSlot: -1,
+    npc: { x: 50, y: 95 }
+};
+
+const ITEMS = {
+    bait_basic: { name: '基础饵', desc: '普通上钩率', price: 10, type: 'bait', effect: 1 },
+    bait_adv: { name: '高级饵', desc: '提高上钩率', price: 50, type: 'bait', effect: 1.5 },
+    bait_super: { name: '超级饵', desc: '极高上钩率', price: 200, type: 'bait', effect: 2 },
+    rod_basic: { name: '新手竿', desc: '+5%成功率', price: 100, type: 'rod', effect: 0.05 },
+    rod_adv: { name: '进阶竿', desc: '+15%成功率', price: 500, type: 'rod', effect: 0.15 },
+    rod_master: { name: '大师竿', desc: '+30%成功率', price: 2000, type: 'rod', effect: 0.30 },
+    potion_stamina: { name: '体力药水', desc: '恢复50体力', price: 30, type: 'potion', restore: 50 },
+    charm_lucky: { name: '幸运符', desc: '10秒幸运加成', price: 100, type: 'charm', duration: 600 }
+};
+
+const FISH = {
+    small: { name: '小鱼', minLevel: 1, weight: 50, basePrice: 5, exp: 10 },
+    perch: { name: '河鲈', minLevel: 3, weight: 30, basePrice: 15, exp: 25 },
+    carp: { name: '鲤鱼', minLevel: 5, weight: 15, basePrice: 50, exp: 50 },
+    goldfish: { name: '金鱼', minLevel: 8, weight: 4, basePrice: 100, exp: 100 },
+    legendary: { name: '传说鱼', minLevel: 15, weight: 1, basePrice: 500, exp: 500 }
+};
+
+// ==================== CANVAS SETUP ====================
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// Disable right-click menu
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ==================== INPUT HANDLING ====================
+const keys = {};
+document.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'Space') {
+        e.preventDefault();
+        handleSpacePress();
+    }
+    if (e.code === 'KeyE') handleInteraction();
+    if (e.code === 'KeyI') toggleInventory();
+    if (e.code === 'Escape') {
+        closeShop();
+        closeInventory();
+        cancelFishing();
+    }
+});
+document.addEventListener('keyup', e => keys[e.code] = false);
+
+function handleSpacePress() {
+    if (gameState.fishingState === 'waiting') {
+        gameState.hookTimer = 90; // 1.5 seconds at 60fps
+        gameState.fishingState = 'bite';
+        showNotification('！上钩了！快按空格！', '#2ecc71');
+    } else if (gameState.fishingState === 'bite') {
+        if (gameState.hookTimer > 0) {
+            startMiniGame();
+        }
+    } else if (gameState.inMiniGame) {
+        stopMiniGame();
+    }
+}
+
+function handleInteraction() {
+    const p = gameState.player;
+    const npc = gameState.npc;
+    const dist = Math.abs(p.x - npc.x) + Math.abs(p.y - npc.y);
+
+    if (dist < 30) {
+        openShop();
+    } else if (p.x > 200) {
+        startFishing();
+    }
+}
+
+function toggleInventory() {
+    if (gameState.inventoryOpen) {
+        closeInventory();
+    } else {
+        openInventory();
+    }
+}
+
+// ==================== FISHING LOGIC ====================
+function startFishing() {
+    if (gameState.fishingState !== 'none') return;
+    if (gameState.stamina < 10) {
+        showNotification('体力不足!', '#e74c3c');
+        return;
+    }
+
+    gameState.player.action = 'fishing';
+    gameState.stamina -= 10;
+    gameState.fishingState = 'waiting';
+    gameState.fishingTimer = 180 + Math.random() * 720; // 3-15 sec
+    updateHUD();
+}
+
+function updateFishing() {
+    if (gameState.fishingState === 'waiting') {
+        gameState.fishingTimer--;
+        if (gameState.fishingTimer <= 0) {
+            gameState.fishingState = 'bite';
+            gameState.hookTimer = 90;
+            showNotification('！上钩了！', '#f39c12');
+        }
+    } else if (gameState.fishingState === 'bite') {
+        gameState.hookTimer--;
+        if (gameState.hookTimer <= 0) {
+            showNotification('鱼跑了...', '#e74c3c');
+            endFishing();
+        }
+    } else if (gameState.inMiniGame) {
+        updateMiniGame();
+    }
+}
+
+function startMiniGame() {
+    gameState.inMiniGame = true;
+    gameState.miniGamePower = 0;
+    gameState.miniGameDir = 1;
+    gameState.miniGameTarget = 30 + Math.random() * 240;
+    gameState.fishingState = 'mini';
+    document.getElementById('fishing-game').classList.add('active');
+    document.getElementById('fishing-score').textContent = '';
+}
+
+function updateMiniGame() {
+    gameState.miniGamePower += 3 * gameState.miniGameDir;
+    if (gameState.miniGamePower >= 360) gameState.miniGameDir = -1;
+    if (gameState.miniGamePower <= 0) gameState.miniGameDir = 1;
+
+    const power = document.getElementById('fishing-power');
+    power.style.transform = `translate(-50%, -100%) rotate(${gameState.miniGamePower}deg)`;
+}
+
+function stopMiniGame() {
+    if (!gameState.inMiniGame) return;
+
+    gameState.inMiniGame = false;
+    document.getElementById('fishing-game').classList.remove('active');
+
+    // Check if in target zone
+    const normalizedPower = gameState.miniGamePower % 360;
+    const targetStart = gameState.miniGameTarget;
+    const targetEnd = (targetStart + 60) % 360;
+
+    let success = false;
+    if (targetStart < targetEnd) {
+        success = normalizedPower >= targetStart && normalizedPower <= targetEnd;
+    } else {
+        success = normalizedPower >= targetStart || normalizedPower <= targetEnd;
+    }
+
+    if (success) {
+        catchFish();
+    } else {
+        showNotification('失败了...', '#e74c3c');
+        endFishing();
+    }
+}
+
+function cancelFishing() {
+    gameState.inMiniGame = false;
+    document.getElementById('fishing-game').classList.remove('active');
+    endFishing();
+}
+
+function endFishing() {
+    gameState.fishingState = 'none';
+    gameState.player.action = 'idle';
+}
+
+function catchFish() {
+    // Roll for fish type based on level and weight
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+    let caughtFish = FISH.small;
+
+    for (const [key, fish] of Object.entries(FISH)) {
+        if (gameState.level >= fish.minLevel) {
+            cumulative += fish.weight;
+            if (roll < cumulative) {
+                caughtFish = fish;
+                break;
+            }
+        }
+    }
+
+    // Add to inventory
+    addToInventory(caughtFish.name, 1, 'fish');
+
+    // Gain exp
+    gainExp(caughtFish.exp);
+
+    showNotification(`钓到了 ${caughtFish.name}!`, '#2ecc71');
+    document.getElementById('fishing-score').textContent = `+${caughtFish.exp} EXP`;
+
+    setTimeout(endFishing, 1500);
+}
+
+function gainExp(amount) {
+    gameState.exp += amount;
+    while (gameState.exp >= gameState.expToLevel) {
+        gameState.exp -= gameState.expToLevel;
+        gameState.level++;
+        gameState.expToLevel = Math.floor(100 * Math.pow(1.2, gameState.level - 1));
+        showNotification(`升级了! Lv.${gameState.level}`, '#9b59b6');
+    }
+    updateHUD();
+}
+
+// ==================== INVENTORY SYSTEM ====================
+function addToInventory(name, qty, type) {
+    // Check existing stack
+    for (let i = 0; i < gameState.inventory.length; i++) {
+        const slot = gameState.inventory[i];
+        if (slot && slot.name === name) {
+            slot.qty += qty;
+            updateInventoryUI();
+            return true;
+        }
+    }
+
+    // Find empty slot
+    if (gameState.inventory.length >= 20) {
+        showNotification('背包满了!', '#e74c3c');
+        return false;
+    }
+
+    gameState.inventory.push({ name, qty, type });
+    updateInventoryUI();
+    return true;
+}
+
+function removeFromInventory(name, qty) {
+    for (let i = 0; i < gameState.inventory.length; i++) {
+        const slot = gameState.inventory[i];
+        if (slot && slot.name === name) {
+            slot.qty -= qty;
+            if (slot.qty <= 0) {
+                gameState.inventory.splice(i, 1);
+            }
+            updateInventoryUI();
+            return true;
+        }
+    }
+    return false;
+}
+
+function hasItem(name) {
+    return gameState.inventory.some(s => s && s.name === name);
+}
+
+function updateInventoryUI() {
+    const grid = document.getElementById('inv-grid');
+    grid.innerHTML = '';
+
+    for (let i = 0; i < 20; i++) {
+        const slot = gameState.inventory[i];
+        const div = document.createElement('div');
+        div.className = 'inv-slot';
+        div.onclick = () => selectInvSlot(i);
+
+        if (slot) {
+            div.innerHTML = `<span>${slot.name}</span><span class="inv-count">x${slot.qty}</span>`;
+        }
+
+        grid.appendChild(div);
+    }
+}
+
+function selectInvSlot(index) {
+    gameState.selectedInvSlot = index;
+    const details = document.getElementById('inv-details');
+    const slot = gameState.inventory[index];
+
+    if (slot) {
+        let info = `<strong>${slot.name}</strong> x${slot.qty}<br>`;
+
+        if (slot.type === 'fish') {
+            const fishData = Object.values(FISH).find(f => f.name === slot.name);
+            if (fishData) {
+                info += `价值: ${fishData.basePrice} 金 | EXP: ${fishData.exp}`;
+            }
+        } else if (ITEMS[slot.name]) {
+            info += ITEMS[slot.name].desc;
+        }
+
+        details.innerHTML = info;
+    } else {
+        details.innerHTML = '';
+    }
+}
+
+function openInventory() {
+    gameState.inventoryOpen = true;
+    updateInventoryUI();
+    document.getElementById('inventory-panel').classList.add('active');
+}
+
+function closeInventory() {
+    gameState.inventoryOpen = false;
+    document.getElementById('inventory-panel').classList.remove('active');
+}
+
+// ==================== SHOP SYSTEM ====================
+const SHOP_BUY_ITEMS = [
+    { ...ITEMS.bait_basic },
+    { ...ITEMS.bait_adv },
+    { ...ITEMS.bait_super },
+    { ...ITEMS.rod_basic },
+    { ...ITEMS.rod_adv },
+    { ...ITEMS.rod_master },
+    { ...ITEMS.potion_stamina },
+    { ...ITEMS.charm_lucky }
+];
+
+function openShop() {
+    gameState.shopOpen = true;
+    gameState.shopTab = 'buy';
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.shop-tab').classList.add('active');
+    renderShopItems();
+    document.getElementById('shop-panel').classList.add('active');
+}
+
+function closeShop() {
+    gameState.shopOpen = false;
+    document.getElementById('shop-panel').classList.remove('active');
+}
+
+function setShopTab(tab) {
+    gameState.shopTab = tab;
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.shop-tab:nth-child(${tab === 'buy' ? 1 : 2})`).classList.add('active');
+    renderShopItems();
+}
+
+function renderShopItems() {
+    const container = document.getElementById('shop-items');
+
+    if (gameState.shopTab === 'buy') {
+        container.innerHTML = SHOP_BUY_ITEMS.map(item => `
+            <div class="shop-item" onclick="buyItem('${item.name}')">
+                <div class="item-info">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-desc">${item.desc}</span>
+                </div>
+                <span class="item-price">${item.price}金</span>
+            </div>
+        `).join('');
+    } else {
+        // Sell tab - show inventory items that can be sold
+        const sellable = gameState.inventory.filter(s => s.type === 'fish' || ITEMS[s.name]);
+        if (sellable.length === 0) {
+            container.innerHTML = '<div style="color:#666;text-align:center;padding:20px;">背包里没有可出售的物品</div>';
+        } else {
+            container.innerHTML = sellable.map((slot, i) => {
+                let price = 5;
+                if (slot.type === 'fish') {
+                    const fishData = Object.values(FISH).find(f => f.name === slot.name);
+                    if (fishData) price = fishData.basePrice;
+                } else if (ITEMS[slot.name]) {
+                    price = Math.floor(ITEMS[slot.name].price * 0.5);
+                }
+                const realIndex = gameState.inventory.indexOf(slot);
+                return `
+                    <div class="shop-item" onclick="sellItem(${realIndex}, ${price})">
+                        <div class="item-info">
+                            <span class="item-name">${slot.name}</span>
+                            <span class="item-quantity">x${slot.qty}</span>
+                        </div>
+                        <span class="item-price">+${price}金</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+}
+
+function buyItem(name) {
+    const item = SHOP_BUY_ITEMS.find(i => i.name === name);
+    if (!item) return;
+
+    if (gameState.gold < item.price) {
+        showNotification('金币不足!', '#e74c3c');
+        return;
+    }
+
+    if (item.type === 'potion') {
+        if (gameState.stamina >= gameState.maxStamina) {
+            showNotification('体力已满!', '#e74c3c');
+            return;
+        }
+        gameState.stamina = Math.min(gameState.maxStamina, gameState.stamina + item.restore);
+    } else {
+        if (!addToInventory(item.name, 1, item.type)) {
+            return;
+        }
+    }
+
+    gameState.gold -= item.price;
+    updateHUD();
+    showNotification(`购买了 ${item.name}!`, '#2ecc71');
+    renderShopItems();
+}
+
+function sellItem(index, price) {
+    const slot = gameState.inventory[index];
+    if (!slot) return;
+
+    gameState.gold += price * slot.qty;
+    gameState.inventory.splice(index, 1);
+    updateHUD();
+    renderShopItems();
+    showNotification(`出售获得 ${price * slot.qty} 金!`, '#f39c12');
+}
+
+// ==================== PLAYER MOVEMENT ====================
+function updatePlayer() {
+    if (gameState.shopOpen || gameState.inventoryOpen) {
+        gameState.player.moving = false;
+        return;
+    }
+    if (gameState.fishingState !== 'none' && gameState.fishingState !== 'waiting' && gameState.fishingState !== 'bite') return;
+
+    const p = gameState.player;
+    let dx = 0, dy = 0;
+
+    if (keys['ArrowLeft'] || keys['KeyA']) dx = -1;
+    if (keys['ArrowRight'] || keys['KeyD']) dx = 1;
+    if (keys['ArrowUp'] || keys['KeyW']) dy = -1;
+    if (keys['ArrowDown'] || keys['KeyS']) dy = 1;
+
+    if (dx !== 0 || dy !== 0) {
+        p.moving = true;
+        p.dir = dx !== 0 ? dx : p.dir;
+        p.frame = (p.frame + 0.15) % 4;
+
+        const newX = p.x + dx * 1.5;
+        const newY = p.y + dy * 1.5;
+
+        // Bounds checking
+        if (newX >= 10 && newX <= 310) p.x = newX;
+        if (newY >= 50 && newY <= 140) p.y = newY;
+
+        if (p.action !== 'fishing') {
+            p.action = 'walk';
+        }
+    } else {
+        p.moving = false;
+        p.frame = 0;
+        if (p.action !== 'fishing') {
+            p.action = 'idle';
+        }
+    }
+}
+
+// ==================== RENDERING ====================
+function drawPixel(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * PIXEL_SIZE * SCALE, y * PIXEL_SIZE * SCALE, PIXEL_SIZE * SCALE, PIXEL_SIZE * SCALE);
+}
+
+function drawRect(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * PIXEL_SIZE * SCALE, y * PIXEL_SIZE * SCALE, w * PIXEL_SIZE * SCALE, h * PIXEL_SIZE * SCALE);
+}
+
+function render() {
+    // Clear
+    ctx.fillStyle = COLORS.sky;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Ground/grass
+    for (let x = 0; x < CANVAS_W; x++) {
+        for (let y = 100; y < 140; y++) {
+            const noise = Math.sin(x * 0.1) * Math.cos(y * 0.1);
+            const color = noise > 0 ? COLORS.grass1 : COLORS.grass2;
+            drawPixel(x, y, color);
+        }
+    }
+
+    // Path
+    for (let x = 30; x < 80; x++) {
+        for (let y = 110; y < 135; y++) {
+            drawPixel(x, y, COLORS.path);
+        }
+    }
+
+    // Water
+    for (let x = 200; x < CANVAS_W; x++) {
+        for (let y = 95; y < CANVAS_H; y++) {
+            const wave = Math.sin(x * 0.2 + Date.now() * 0.003) * 0.5;
+            const color = (x + y + wave * 5) % 3 === 0 ? COLORS.water1 : COLORS.water2;
+            drawPixel(x, y, color);
+        }
+    }
+
+    // Water edge foam
+    for (let x = 200; x < CANVAS_W; x++) {
+        drawPixel(x, 95, '#c9e4ca');
+        if (x % 4 === 0) drawPixel(x, 94, '#c9e4ca');
+    }
+
+    // Shop building
+    // Base
+    drawRect(30, 70, 50, 30, COLORS.wood1);
+    drawRect(32, 72, 46, 26, COLORS.wood2);
+    // Roof
+    for (let i = 0; i < 6; i++) {
+        drawRect(25 - i, 65 + i, 60 + i * 2, 2, COLORS.roof);
+    }
+    // Door
+    drawRect(50, 85, 10, 15, COLORS.door);
+    // Sign
+    ctx.fillStyle = '#f5deb3';
+    ctx.font = '12px monospace';
+    ctx.fillText('杂货店', 38 * PIXEL_SIZE * SCALE, 78 * PIXEL_SIZE * SCALE);
+
+    // NPC
+    drawNPC(gameState.npc.x, gameState.npc.y);
+
+    // Player
+    drawPlayer(gameState.player);
+
+    // Fishing rod if fishing
+    if (gameState.player.action === 'fishing' || gameState.fishingState !== 'none') {
+        drawFishingRod();
+    }
+
+    // Fishing bobber in water
+    if (gameState.fishingState === 'waiting' || gameState.fishingState === 'bite') {
+        const bobberX = gameState.player.x + 20;
+        const bobberY = 100;
+        const bob = gameState.fishingState === 'bite';
+        drawRect(bobberX, bobberY, 3, 3, bob ? '#e74c3c' : '#fff');
+        if (bob) {
+            // Bounce animation
+            const bounce = Math.sin(Date.now() * 0.02) * 2;
+            drawRect(bobberX - 1, bobberY - 5 + bounce, 5, 3, '#e74c3c');
+        }
+    }
+
+    // Waiting dots animation
+    if (gameState.fishingState === 'waiting') {
+        const dots = '.'.repeat(Math.floor(Date.now() / 500) % 4);
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px monospace';
+        ctx.fillText(`等待中${dots}`, 260 * PIXEL_SIZE * SCALE, 50 * PIXEL_SIZE * SCALE);
+    }
+
+    // Bite warning
+    if (gameState.fishingState === 'bite') {
+        ctx.fillStyle = '#e74c3c';
+        ctx.font = '16px monospace';
+        ctx.fillText(`按空格! ${Math.ceil(gameState.hookTimer / 60)}s`, 250 * PIXEL_SIZE * SCALE, 50 * PIXEL_SIZE * SCALE);
+    }
+
+    // Show interaction hint near shop
+    const p = gameState.player;
+    const npc = gameState.npc;
+    if (Math.abs(p.x - npc.x) + Math.abs(p.y - npc.y) < 30 && !gameState.shopOpen) {
+        showTip('按 [E] 进入商店');
+    } else if (p.x > 200 && gameState.fishingState === 'none') {
+        showTip('按 [E] 或 空格 开始钓鱼');
+    } else {
+        hideTip();
+    }
+}
+
+function drawPlayer(pl) {
+    const x = Math.floor(pl.x);
+    const y = Math.floor(pl.y);
+    const bounce = pl.moving ? Math.sin(pl.frame * Math.PI) * 2 : 0;
+    const dir = pl.dir;
+
+    // Shadow
+    drawRect(x - 4, y + 12, 8, 3, 'rgba(0,0,0,0.3)');
+
+    // Legs
+    const legOffset = pl.moving ? Math.sin(pl.frame * Math.PI * 2) * 2 : 0;
+    drawRect(x - 3, y + 8 + bounce, 3, 5, COLORS.playerPants);
+    drawRect(x + 1, y + 8 + bounce + legOffset, 3, 5, COLORS.playerPants);
+
+    // Body
+    drawRect(x - 4, y + 2 + bounce, 8, 7, COLORS.playerShirt);
+
+    // Head
+    drawRect(x - 3, y - 4 + bounce, 7, 7, '#ffd5b5');
+
+    // Hair
+    drawRect(x - 4, y - 5 + bounce, 8, 4, COLORS.playerHair);
+    if (dir < 0) {
+        drawRect(x - 5, y - 4 + bounce, 2, 4, COLORS.playerHair);
+    }
+
+    // Eyes
+    const eyeX = dir > 0 ? 2 : -2;
+    drawPixel(x + eyeX + 1, y - 1 + bounce, '#000');
+    drawPixel(x + eyeX + 4, y - 1 + bounce, '#000');
+
+    // Arms
+    if (pl.action === 'fishing') {
+        // Fishing pose - arm extended
+        drawRect(x + dir * 5, y + 3 + bounce, 8 * dir, 3, '#ffd5b5');
+    } else {
+        const armSwing = pl.moving ? Math.sin(pl.frame * Math.PI * 2) * 2 : 0;
+        drawRect(x - 6, y + 3 + bounce + armSwing, 3, 5, '#ffd5b5');
+        drawRect(x + 3, y + 3 + bounce - armSwing, 3, 5, '#ffd5b5');
+    }
+}
+
+function drawNPC(x, y) {
+    // Shadow
+    drawRect(x - 4, y + 12, 8, 3, 'rgba(0,0,0,0.3)');
+
+    // Legs
+    drawRect(x - 3, y + 8, 3, 5, '#5a4a3a');
+    drawRect(x + 1, y + 8, 3, 5, '#5a4a3a');
+
+    // Body
+    drawRect(x - 4, y + 2, 8, 7, COLORS.npc);
+
+    // Head
+    drawRect(x - 3, y - 4, 7, 7, COLORS.npcSkin);
+
+    // Hair
+    drawRect(x - 4, y - 5, 8, 4, '#4a3728');
+
+    // Eyes
+    drawPixel(x, y - 1, '#000');
+    drawPixel(x + 4, y - 1, '#000');
+
+    // "!" indicator
+    if (Math.abs(gameState.player.x - x) + Math.abs(gameState.player.y - y) < 30) {
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '12px monospace';
+        ctx.fillText('!', (x - 2) * PIXEL_SIZE * SCALE, (y - 15) * PIXEL_SIZE * SCALE);
+    }
+}
+
+function drawFishingRod() {
+    const p = gameState.player;
+    const x = p.x + (p.dir > 0 ? 8 : -8);
+    const y = p.y + 3;
+
+    // Rod
+    ctx.strokeStyle = '#8b4513';
+    ctx.lineWidth = 3 * SCALE;
+    ctx.beginPath();
+    ctx.moveTo(x * PIXEL_SIZE * SCALE, y * PIXEL_SIZE * SCALE);
+    ctx.lineTo((x + p.dir * 25) * PIXEL_SIZE * SCALE, (y - 15) * PIXEL_SIZE * SCALE);
+    ctx.stroke();
+
+    // Line
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1 * SCALE;
+    ctx.beginPath();
+    ctx.moveTo((x + p.dir * 25) * PIXEL_SIZE * SCALE, (y - 15) * PIXEL_SIZE * SCALE);
+    ctx.lineTo((x + p.dir * 40) * PIXEL_SIZE * SCALE, (y + 20) * PIXEL_SIZE * SCALE);
+    ctx.stroke();
+}
+
+// ==================== UI HELPERS ====================
+function showNotification(text, color) {
+    const notif = document.getElementById('notification');
+    notif.textContent = text;
+    notif.style.color = color;
+    notif.classList.add('show');
+    setTimeout(() => notif.classList.remove('show'), 2000);
+}
+
+function showTip(text) {
+    const tip = document.getElementById('game-tip');
+    tip.textContent = text;
+    tip.style.display = 'block';
+}
+
+function hideTip() {
+    document.getElementById('game-tip').style.display = 'none';
+}
+
+function updateHUD() {
+    document.getElementById('gold-display').textContent = gameState.gold;
+    document.getElementById('level-display').textContent = gameState.level;
+    document.getElementById('exp-display').textContent = gameState.exp;
+    document.getElementById('exp-max-display').textContent = gameState.expToLevel;
+    document.getElementById('stamina-display').textContent = gameState.stamina;
+}
+
+// ==================== GAME LOOP ====================
+function gameLoop() {
+    updatePlayer();
+    updateFishing();
+    render();
+    requestAnimationFrame(gameLoop);
+}
+
+// ==================== INITIALIZATION ====================
+function init() {
+    updateHUD();
+    gameLoop();
+}
+
+init();
+</script>
 </body>
 </html>
