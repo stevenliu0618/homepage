@@ -574,6 +574,7 @@ const SaveSystem = {
                 inventory: gameState.inventory,
                 equippedRod: gameState.equippedRod,
                 equippedBait: gameState.equippedBait,
+                baitInventory: gameState.baitInventory || {},
                 baitCount: gameState.baitCount,
                 equippedAccessory: gameState.equippedAccessory,
                 isOnBoat: gameState.isOnBoat,
@@ -619,6 +620,7 @@ const SaveSystem = {
             gameState.inventory = saveData.gameState.inventory;
             gameState.equippedRod = saveData.gameState.equippedRod;
             gameState.equippedBait = saveData.gameState.equippedBait;
+            gameState.baitInventory = saveData.gameState.baitInventory || {};
             gameState.baitCount = saveData.gameState.baitCount;
             gameState.equippedAccessory = saveData.gameState.equippedAccessory;
             gameState.isOnBoat = saveData.gameState.isOnBoat;
@@ -694,7 +696,8 @@ const gameState = {
     notifications: [],
     equippedRod: 'rod_bamboo',
     equippedBait: null,
-    baitCount: 0,
+    baitInventory: {},  // 鱼饵背包 { baitId: count }
+    baitCount: 0,  // 当前装备鱼饵的数量（兼容旧代码）
     equippedAccessory: 'acc_none',
     shopTab: 'buy',
     biteTimer: 0,
@@ -1695,8 +1698,46 @@ function getCurrentRod() {
 }
 
 function getCurrentBait() {
-    if (!gameState.equippedBait || gameState.baitCount <= 0) return null;
-    return SHOP_ITEMS.baits.find(b => b.id === gameState.equippedBait) || null;
+    if (!gameState.equippedBait) return null;
+    const bait = SHOP_ITEMS.baits.find(b => b.id === gameState.equippedBait);
+    if (!bait) return null;
+    // 同步 baitCount
+    gameState.baitCount = gameState.baitInventory[gameState.equippedBait] || 0;
+    if (gameState.baitCount <= 0) return null;
+    return bait;
+}
+
+// 自动选择适合当前水域的鱼饵
+function autoSelectBait(waterType) {
+    const baits = SHOP_ITEMS.baits;
+
+    // 根据水域类型筛选可用鱼饵
+    let eligibleBaits;
+    if (waterType === 'sea') {
+        // 海水：只能使用 sea 或 legend 类型
+        eligibleBaits = baits.filter(b => b.type === 'sea' || b.type === 'legend');
+    } else {
+        // 淡水：可以使用 any, special, legend 类型
+        eligibleBaits = baits.filter(b => b.type === 'any' || b.type === 'special' || b.type === 'legend');
+    }
+
+    // 找当前已装备的鱼饵是否适合
+    const currentBait = getCurrentBait();
+    if (currentBait && eligibleBaits.find(b => b.id === currentBait.id)) {
+        return currentBait; // 当前装备的鱼饵可用
+    }
+
+    // 如果当前鱼饵不适合，自动切换到最低等级的适合鱼饵
+    for (const bait of eligibleBaits) {
+        const count = gameState.baitInventory[bait.id] || 0;
+        if (count > 0) {
+            gameState.equippedBait = bait.id;
+            gameState.baitCount = count;
+            return bait;
+        }
+    }
+
+    return null;
 }
 
 function getCurrentAccessory() {
@@ -1717,15 +1758,14 @@ function startCasting() {
     }
     if (gameState.fishingState !== FISHING_STATE.IDLE) return;
 
-    const bait = getCurrentBait();
+    // 自动选择适合当前水域的鱼饵
+    const bait = autoSelectBait(waterType);
     if (!bait) {
-        showNotification('🪱 没有鱼饵了！请先购买鱼饵', 'error');
-        return;
-    }
-
-    // 海鱼需要海藻鱼饵
-    if (waterType === 'sea' && bait.type !== 'sea' && bait.type !== 'legend') {
-        showNotification('🌿 海水需要海藻鱼饵才能钓鱼！', 'warning');
+        if (waterType === 'sea') {
+            showNotification('🌿 没有海水鱼饵！请去商店购买海藻鱼饵', 'error');
+        } else {
+            showNotification('🪱 没有鱼饵了！请先购买鱼饵', 'error');
+        }
         return;
     }
 
@@ -1762,7 +1802,11 @@ function startCasting() {
     const zoneNames = { river: '湖边', deep: '深水区', sea: '海边' };
     showNotification(`🎣 已抛竿 (${zoneNames[waterType]})，等待鱼上钩...`, 'info');
 
-    gameState.baitCount--;
+    // 扣除鱼饵（从 inventory 中扣除）
+    if (gameState.equippedBait && gameState.baitInventory[gameState.equippedBait]) {
+        gameState.baitInventory[gameState.equippedBait]--;
+        gameState.baitCount = gameState.baitInventory[gameState.equippedBait];
+    }
     gameState.lastCatchZone = waterType;
     updateHUD();
 
@@ -1828,15 +1872,6 @@ function respondToBite() {
     fishingGame.zoneHeight = DIFFICULTY_CONFIG[fish.difficulty].zoneBase + rod.zoneBonus;
     fishingGame.progressGain = 0.8 + rod.progressBonus;
     fishingGame.progressLoss = 0.2;
-
-    if (gameState.equippedBait && gameState.baitCount > 0) {
-        gameState.baitCount--;
-        if (gameState.baitCount <= 0) {
-            gameState.equippedBait = null;
-            gameState.baitCount = 0;
-        }
-        updateHUD();
-    }
 
     const diffNames = { 1: '简单', 2: '较易', 3: '中等', 4: '较难', 5: '困难', 6: '极难' };
     showNotification(`🎣 开始收竿！按住空格键控制！ (${diffNames[fish.difficulty]})`, 'info');
@@ -2724,7 +2759,42 @@ function renderEquipment() {
     });
     html += '</div></div>';
 
+    // 鱼饵选择区域
+    html += '<div class="equip-section"><div class="equip-section-title">🪱 选择鱼饵</div><div class="equip-grid">';
+    SHOP_ITEMS.baits.forEach(bait => {
+        const isEquipped = gameState.equippedBait === bait.id;
+        const count = gameState.baitInventory[bait.id] || 0;
+        const canEquip = count > 0;
+        const typeLabel = bait.type === 'sea' ? '(海水)' : bait.type === 'legend' ? '(传说)' : bait.type === 'special' ? '(特殊)' : '(通用)';
+        html += `
+            <div class="equip-card ${isEquipped ? 'active' : ''} ${!canEquip ? 'locked' : ''}" onclick="${canEquip ? `equipBait('${bait.id}')` : ''}">
+                <div class="equip-card-icon">${bait.icon}</div>
+                <div class="equip-card-name">${bait.name}</div>
+                <div class="equip-card-desc">${typeLabel} ${bait.desc}</div>
+                ${!canEquip ? '<div class="equip-card-locked">💰 商店购买</div>' : `<div class="equip-card-count">×${count}</div>`}
+                ${isEquipped ? '<div class="equip-card-status">✓ 装备中</div>' : ''}
+            </div>
+        `;
+    });
+    html += '</div></div>';
+
     container.innerHTML = html;
+}
+
+function equipBait(baitId) {
+    const bait = SHOP_ITEMS.baits.find(b => b.id === baitId);
+    if (!bait) return;
+    const count = gameState.baitInventory[baitId] || 0;
+    if (count <= 0) {
+        showNotification('该鱼饵已用完！', 'warning');
+        return;
+    }
+    gameState.equippedBait = baitId;
+    gameState.baitCount = count;
+    AudioSystem.sfx.coin();
+    showNotification(`🪱 装备了 ${bait.name} ×${count}`, 'success');
+    updateHUD();
+    renderEquipment();
 }
 
 function equipAccessory(accessoryId) {
@@ -2753,12 +2823,15 @@ function buyBait(baitId) {
     const bait = SHOP_ITEMS.baits.find(b => b.id === baitId);
     if (!bait || gameState.money < bait.price) return;
     gameState.money -= bait.price;
-    if (gameState.equippedBait === baitId) {
-        gameState.baitCount += 5;
-    } else {
-        gameState.equippedBait = baitId;
-        gameState.baitCount = 5;
-    }
+
+    // 使用 baitInventory 存储鱼饵
+    if (!gameState.baitInventory) gameState.baitInventory = {};
+    gameState.baitInventory[baitId] = (gameState.baitInventory[baitId] || 0) + 5;
+
+    // 自动装备新买的鱼饵
+    gameState.equippedBait = baitId;
+    gameState.baitCount = gameState.baitInventory[baitId];
+
     AudioSystem.sfx.buy();
     showNotification(`✨ 购买了 ${bait.name} ×5！`, 'success');
     updateHUD();
