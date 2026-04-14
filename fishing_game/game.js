@@ -340,7 +340,7 @@ const GAME_CONFIG = {
     ],
     timeSystem: {
         phases: ['dawn', 'day', 'dusk', 'night', 'midnight'],
-        currentPhase: 'dawn',
+        currentPhase: 'day',
         phaseDuration: 60000,
         updateInterval: 5000
     }
@@ -3501,6 +3501,7 @@ function startGame() {
 
     gameState.equippedBait = 'bait_worm';
     gameState.baitCount = 10;
+    gameState.baitInventory = { bait_worm: 10 };
 
     gameState.isPlaying = true;
     gameState.lastTime = performance.now();
